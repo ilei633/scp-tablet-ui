@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>SCP Foundation OS - Tablet Interface</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --bg-base: #07090e;
+            --panel-bg: rgba(14, 20, 32, 0.75);
+            --panel-border: rgba(0, 200, 255, 0.25);
+            --accent: #00c8ff;
+            --accent-glow: rgba(0, 200, 255, 0.4);
+            --accent-green: #00ffaa;
+            --accent-orange: #ff9900;
+            --text-main: #e6f1ff;
+            --text-muted: #7b91b0;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-base);
+            font-family: 'Chakra Petch', sans-serif;
+            color: var(--text-main);
+            overflow: hidden;
+            display: flex;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(0, 200, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(0, 255, 170, 0.05) 0%, transparent 50%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: rgba(10, 14, 22, 0.85);
+            border-right: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        .logo-area {
+            padding: 24px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--panel-border);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--accent);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .logo-icon::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 12px 16px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-btn:hover {
+            color: #fff;
+            background: rgba(0, 200, 255, 0.08);
+            border-color: rgba(0, 200, 255, 0.2);
+        }
+
+        .nav-btn.active {
+            color: #fff;
+            background: rgba(0, 200, 255, 0.15);
+            border-color: var(--accent);
+            box-shadow: inset 0 0 12px rgba(0, 200, 255, 0.2);
+        }
+
+        .sidebar-footer {
+            padding: 15px;
+            border-top: 1px solid var(--panel-border);
+        }
+
+        .btn-close {
+            width: 100%;
+            background: rgba(255, 50, 80, 0.1);
+            border: 1px solid rgba(255, 50, 80, 0.4);
+            color: #ff3355;
+            padding: 10px;
+            font-family: inherit;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-close:hover {
+            background: rgba(255, 50, 80, 0.2);
+            color: #fff;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: rgba(7, 9, 14, 0.5);
+        }
+
+        .header {
+            height: 70px;
+            border-bottom: 1px solid var(--panel-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            background: rgba(14, 20, 32, 0.5);
+        }
+
+        #header-title {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        #view-container {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-left: 4px solid var(--accent);
+            padding: 24px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .card-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .profile-stat {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--panel-border);
+            padding: 16px;
+            border-radius: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .stat-value.money {
+            color: var(--accent-green);
+        }
+
+        .btn {
+            background: rgba(0, 200, 255, 0.1);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 10px 20px;
+            font-family: inherit;
+            font-weight: 700;
+            letter-spacing: 1px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 20px;
+        }
+
+        .spinner {
+            width: 45px;
+            height: 45px;
+            border: 3px solid rgba(0, 200, 255, 0.1);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-area">
+            <div class="logo-icon"></div>
+            <div class="logo-text">FOUNDATION OS</div>
+        </div>
+        <div class="nav-menu" id="nav-menu"></div>
+        <div class="sidebar-footer">
+            <button class="btn-close" onclick="if(window.gmod) gmod.closeTablet();">ЗАКРЫТЬ [ESC]</button>
+        </div>
+    </div>
+    <div class="main-content">
+        <div class="header">
+            <div id="header-title">ЛИЧНОЕ ДЕЛО</div>
+            <div style="color:var(--accent); font-weight:600; font-size:16px;">СИСТЕМА: <span style="color:#00ffaa">GITHUB LIVE</span></div>
+        </div>
+        <div id="view-container"></div>
+    </div>
+
+    <script>
+        function setView(html) {
+            document.getElementById('view-container').innerHTML = html;
+        }
+
+        function setLoading(tabId, title) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if(activeBtn) activeBtn.classList.add('active');
+            
+            document.getElementById('header-title').innerText = title;
+            setView('<div class="loader"><div class="spinner"></div><div style="color:var(--accent); font-weight:600; letter-spacing:2px">ЗАГРУЗКА...</div></div>');
+            if (window.gmod && gmod.playSound) gmod.playSound('UI/buttonrollover.wav');
+        }
+
+        function setupSidebar(json) {
+            try {
+                const btns = (typeof json === 'string') ? JSON.parse(json) : json;
+                let html = '';
+                btns.forEach(b => {
+                    html += `<button class="nav-btn" id="nav-${b.tab}" onclick="gmod.requestTab('${b.tab}')">${b.name}</button>`;
+                });
+                document.getElementById('nav-menu').innerHTML = html;
+            } catch(e) {
+                console.error("setupSidebar error:", e);
+            }
+        }
+
+        function renderProfile(dataJson) {
+            try {
+                let data = (typeof dataJson === 'string') ? JSON.parse(dataJson) : dataJson;
+                setView(`
+                    <div class="card">
+                        <div class="card-title">ЛИЧНОЕ ДЕЛО СОТРУДНИКА</div>
+                        <div class="card-desc">Доступ ограничен протоколом безопасности. Данные синхронизированы с базой Фонда.</div>
+                        <div class="profile-grid">
+                            <div class="profile-stat">
+                                <div class="stat-label">ИМЯ / ПОЗЫВНОЙ</div>
+                                <div class="stat-value">${data.name || 'Неизвестно'}</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="stat-label">ДОЛЖНОСТЬ</div>
+                                <div class="stat-value" style="color: #ddd">${data.job || 'D-Класс'}</div>
+                            </div>
+                            <div class="profile-stat" style="border-left-color: var(--accent-green)">
+                                <div class="stat-label">БАЛАНС КАРТЫ</div>
+                                <div class="stat-value money">$${data.money || 0}</div>
+                            </div>
+                            <div class="profile-stat" style="border-left-color: var(--accent-orange)">
+                                <div class="stat-label">СТАТУС ДОСТУПА</div>
+                                <div class="stat-value" style="color: var(--accent-orange)">АКТИВЕН</div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+            } catch(err) {
+                console.error("Profile error:", err);
+                setView('<div class="card"><div class="card-title">ОШИБКА ДАННЫХ ПРОФИЛЯ</div><div class="card-desc">' + err + '</div></div>');
+            }
+        }
+
+        function renderQuests(dataJson) {
+            try {
+                let data = (typeof dataJson === 'string') ? JSON.parse(dataJson) : dataJson;
+                let list = data.quests || data;
+                let html = '';
+                if (Array.isArray(list) && list.length > 0) {
+                    list.forEach(q => {
+                        let isDone = q.completed || (q.progress && q.goal && q.progress >= q.goal);
+                        html += `
+                            <div class="card" style="border-left-color: ${isDone ? 'var(--accent-green)' : 'var(--accent)'}">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                    <div>
+                                        <div class="card-title" style="margin-bottom:5px;">${q.name || q.title || 'Задание'}</div>
+                                        <div class="card-desc" style="margin-bottom:10px;">${q.desc || q.description || ''}</div>
+                                    </div>
+                                    <div style="text-align:right">
+                                        <div style="color:var(--accent-green); font-weight:bold; font-size:18px;">+$${q.reward || 0}</div>
+                                        <div style="font-size:12px; color:#aaa">${isDone ? 'ВЫПОЛНЕНО' : ((q.progress || 0) + '/' + (q.goal || 1))}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html = '<div class="card"><div class="card-title">НЕТ АКТИВНЫХ ЗАДАЧ</div><div class="card-desc">Все протоколы на данный момент завершены или недоступны.</div></div>';
+                }
+                setView(html);
+            } catch(err) {
+                console.error("Quests error:", err);
+                setView('<div class="card"><div class="card-title">ОШИБКА ЗАДАЧ</div><div class="card-desc">' + err + '</div></div>');
+            }
+        }
+
+        function renderQuestsV2(dataJson) {
+            renderQuests(dataJson);
+        }
+
+        function renderShop(dataJson) {
+            try {
+                let data = (typeof dataJson === 'string') ? JSON.parse(dataJson) : dataJson;
+                let items = data.items || data;
+                let html = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">';
+                if (Array.isArray(items) && items.length > 0) {
+                    items.forEach(item => {
+                        html += `
+                            <div class="card" style="margin-bottom:0; padding:20px;">
+                                <div class="card-title" style="font-size:18px; color:var(--accent)">${item.name}</div>
+                                <div style="color:var(--accent-green); font-size:20px; font-weight:bold; margin-bottom:15px;">$${item.price}</div>
+                                <button class="btn" style="width:100%" onclick="gmod.buyItem('${item.id}')">КУПИТЬ</button>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html = '<div class="card" style="grid-column: 1 / -1;"><div class="card-title">АРСЕНАЛ ПУСТ</div><div class="card-desc">Для вашей текущей специальности нет доступных предметов снабжения.</div></div>';
+                }
+                html += '</div>';
+                setView(html);
+            } catch(err) {
+                console.error("Shop error:", err);
+                setView('<div class="card"><div class="card-title">ОШИБКА МАГАЗИНА</div><div class="card-desc">' + err + '</div></div>');
+            }
+        }
+
+        function renderCraft(dataJson) {
+            try {
+                let data = (typeof dataJson === 'string') ? JSON.parse(dataJson) : dataJson;
+                let recipes = data.recipes || data;
+                let html = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">';
+                if (Array.isArray(recipes) && recipes.length > 0) {
+                    recipes.forEach(r => {
+                        html += `
+                            <div class="card" style="margin-bottom:0; padding:20px;">
+                                <div class="card-title" style="font-size:18px; color:var(--accent-orange)">${r.name}</div>
+                                <div style="color:#aaa; font-size:14px; margin-bottom:15px;">Требуется: ${r.ingredientsText}</div>
+                                <button class="btn" style="width:100%; border-color:var(--accent-orange); color:var(--accent-orange)" onclick="alert('Используйте верстак для создания этого предмета!')">ЧЕРТЕЖ</button>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html = '<div class="card" style="grid-column: 1 / -1;"><div class="card-title">НЕТ ЧЕРТЕЖЕЙ</div><div class="card-desc">Список чертежей пуст.</div></div>';
+                }
+                html += '</div>';
+                setView(html);
+            } catch(err) {
+                console.error("Craft error:", err);
+                setView('<div class="card"><div class="card-title">ОШИБКА ЧЕРТЕЖЕЙ</div><div class="card-desc">' + err + '</div></div>');
+            }
+        }
+
+        function renderPatrols() {
+            setView(`
+                <div class="card" style="border-left-color: var(--accent-green)">
+                    <div class="card-title" style="color:var(--accent-green)">СИСТЕМА ПАТРУЛИРОВАНИЯ</div>
+                    <div class="card-desc">Автоматическое начисление премий за патрулирование контрольных секторов Зоны.</div>
+                    <button class="btn" style="width:100%; font-size:18px; margin-top:15px; border-color:var(--accent-green); color:var(--accent-green)" onclick="gmod.startPatrol()">НАЧАТЬ ПАТРУЛЬ</button>
+                </div>
+            `);
+        }
+
+        function renderAdminHub() {
+            setView(`
+                <div class="card" style="border-left-color: #ff3366">
+                    <div class="card-title" style="color:#ff3366">ПАНЕЛЬ УПРАВЛЕНИЯ ЗОНОЙ (ADMIN)</div>
+                    <div class="card-desc">Протоколы экстренных ситуаций и глобальные события комплекса.</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:20px;">
+                        <button class="btn" style="border-color:#ff3366; color:#ff3366" onclick="gmod.adminAction('breach')">НАРУШЕНИЕ ОУС (!breach)</button>
+                        <button class="btn" style="border-color:#ffaa00; color:#ffaa00" onclick="gmod.adminAction('lightsoff')">ОТКЛЮЧИТЬ ПИТАНИЕ СВЕТА</button>
+                        <button class="btn" style="border-color:var(--accent-green); color:var(--accent-green)" onclick="gmod.adminAction('lightson')">ВКЛЮЧИТЬ ПИТАНИЕ СВЕТА</button>
+                        <button class="btn" style="border-color:var(--accent); color:var(--accent)" onclick="gmod.adminAction('airdrop')">ВЫЗВАТЬ АИРДРОП СНАБЖЕНИЯ</button>
+                    </div>
+                </div>
+            `);
+        }
+
+        function renderRaids(dataJson) {
+            try {
+                let data = dataJson ? JSON.parse(dataJson) : {};
+                let canDeclare = data.canDeclare;
+                let activeWar = data.activeWar;
+                
+                let warStatusHtml = activeWar ? 
+                    `<div style="color:#ff3366; font-size:18px; font-weight:bold; margin-bottom:15px;">ИДЕТ ВОЙНА: ${activeWar.initiator} VS ${activeWar.target}<br><span style="font-size:14px; color:#aaa">Причина: ${activeWar.reason}</span></div>` :
+                    `<div style="color:var(--accent-green); font-size:16px; margin-bottom:15px;">Активных войн или рейдов в комплексе нет.</div>`;
+                    
+                let declareForm = canDeclare ? `
+                    <div style="margin-top:20px; display:flex; flex-direction:column; gap:12px;">
+                        <div>
+                            <label style="color:var(--accent-orange); font-weight:bold; font-size:13px; display:block; margin-bottom:4px;">ЦЕЛЬ РЕЙДА / ФРАКЦИЯ:</label>
+                            <input type="text" id="raid-target" placeholder="Например: ПХ, ДЗ, Повстанцы..." style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.5); border:1px solid var(--accent-orange); color:#fff; padding:10px; font-family:'Chakra Petch'; font-size:15px; outline:none;">
+                        </div>
+                        <div>
+                            <label style="color:var(--accent-orange); font-weight:bold; font-size:13px; display:block; margin-bottom:4px;">ПРИЧИНА РЕЙДА (RP):</label>
+                            <textarea id="raid-reason" placeholder="Укажите причину..." style="width:100%; box-sizing:border-box; height:70px; background:rgba(0,0,0,0.5); border:1px solid var(--accent-orange); color:#fff; padding:10px; font-family:'Chakra Petch'; font-size:15px; outline:none; resize:none;"></textarea>
+                        </div>
+                        <button class="btn" style="border-color:var(--accent-orange); color:var(--accent-orange); font-size:16px;" onclick="gmod.sendRaidRequest(document.getElementById('raid-target').value, document.getElementById('raid-reason').value)">ОБЪЯВИТЬ РЕЙД</button>
+                    </div>
+                ` : `<div style="color:#888; margin-top:15px;">У вас нет полномочий объявлять рейды от лица командования.</div>`;
+
+                setView(`
+                    <div class="card" style="border-left-color: var(--accent-orange)">
+                        <div class="card-title" style="color:var(--accent-orange)">ШТАБ ВОЕННЫХ ОПЕРАЦИЙ И РЕЙДОВ</div>
+                        <div class="card-desc">Координация боевых действий между группировками.</div>
+                        ${warStatusHtml}
+                        ${declareForm}
+                    </div>
+                `);
+            } catch(err) {
+                console.error("Raids error:", err);
+                setView('<div class="card"><div class="card-title">ОШИБКА РЕЙДОВ</div><div class="card-desc">' + err + '</div></div>');
+            }
+        }
+
+        function renderDarknet(dataJson) {
+            try {
+                let data = dataJson ? JSON.parse(dataJson) : { items: [] };
+                let items = data.items || [];
+                let marketHtml = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:15px;">';
+                if (items.length > 0) {
+                    items.forEach(item => {
+                        marketHtml += `
+                            <div class="card" style="border:1px solid #00ff66; background:rgba(0,255,100,0.03); margin-bottom:0; padding:15px;">
+                                <div style="font-size:16px; font-weight:bold; color:#00ff66;">${item.name}</div>
+                                <div style="color:#aaa; font-size:12px; margin-bottom:10px;">${item.category || 'Нелегал'}</div>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <div style="color:#00ff66; font-size:18px; font-weight:bold;">$${item.price}</div>
+                                    <button class="btn" style="border-color:#00ff66; color:#00ff66; padding:6px 14px;" onclick="gmod.buyItem('${item.id}')">КУПИТЬ</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    marketHtml += '<div class="card" style="grid-column: 1 / -1;"><div class="card-title" style="color:#00ff66">НЕТ НЕЛЕГАЛЬНЫХ ТОВАРОВ</div><div class="card-desc">Каналы поставок контрабанды временно недоступны.</div></div>';
+                }
+                marketHtml += '</div>';
+
+                setView(`
+                    <div class="card" style="border-left-color: #00ff66">
+                        <div class="card-title" style="color:#00ff66">ТЕНЕВОЙ РЫНОК [DARKNET]</div>
+                        <div class="card-desc">Анонимная зашифрованная сеть снабжения контрабандой.</div>
+                        ${marketHtml}
+                    </div>
+                `);
+            } catch(err) {
+                console.error("Darknet error:", err);
+                setView('<div class="card"><div class="card-title">ОШИБКА ДАРКНЕТА</div><div class="card-desc">' + err + '</div></div>');
+            }
+        }
+
+        function renderMessage(title, msg) {
+            setView(`
+                <div class="card">
+                    <div class="card-title">${title}</div>
+                    <div class="card-desc" style="white-space:pre-line;">${msg}</div>
+                </div>
+            `);
+        }
+
+        function renderReports() {
+            setView(`
+                <div class="card">
+                    <div class="card-title">ОТЧЕТЫ ОБ ИНЦИДЕНТАХ</div>
+                    <div class="card-desc">Научный архив происшествий и протоколы содержания.</div>
+                    <div style="margin-top:15px; display:flex; flex-direction:column; gap:10px;">
+                        <input type="text" id="report-scp" placeholder="Номер SCP объекта (например: SCP-173)" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.5); border:1px solid var(--accent); color:#fff; padding:10px; font-family:'Chakra Petch'; font-size:15px; outline:none;">
+                        <textarea id="report-text" placeholder="Текст отчета..." style="width:100%; box-sizing:border-box; height:80px; background:rgba(0,0,0,0.5); border:1px solid var(--accent); color:#fff; padding:10px; font-family:'Chakra Petch'; font-size:15px; outline:none; resize:none;"></textarea>
+                        <button class="btn" style="width:100%" onclick="gmod.submitReport(document.getElementById('report-scp').value, document.getElementById('report-text').value)">ОТПРАВИТЬ ОТЧЕТ</button>
+                    </div>
+                </div>
+            `);
+        }
+
+        function renderMTF() {
+            setView(`
+                <div class="card" style="border-left-color: var(--accent)">
+                    <div class="card-title">ТАКТИЧЕСКИЙ ЦЕНТР МОГ</div>
+                    <div class="card-desc">Активация оперативных спецспособностей мобильных групп.</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:20px;">
+                        <button class="btn" onclick="gmod.mtfEpsilon()">СКАНЕР EPSILON-11 ($1500)</button>
+                        <button class="btn" onclick="gmod.mtfNu7()">МЕДПОЛЕ NU-7 ($2500)</button>
+                        <button class="btn" onclick="gmod.mtfLambda()">ЯКОРЬ РЕАЛЬНОСТИ LAMBDA-5 ($5000)</button>
+                    </div>
+                </div>
+            `);
+        }
+
+        function renderGOCTerminal(dataJson) {
+            setView(`
+                <div class="card" style="border-left-color: #00ccff">
+                    <div class="card-title" style="color:#00ccff">ТАКТИЧЕСКИЙ ТЕРМИНАЛ ГОК</div>
+                    <div class="card-desc">Система квантовой телепортации и контроля позиций ГОК.</div>
+                    <div style="display:flex; gap:15px; margin-top:20px;">
+                        <button class="btn" style="border-color:#00ccff; color:#00ccff" onclick="gmod.spawnGOCPad()">УСТАНОВИТЬ ТЕЛЕПОРТ-ПЛАТФОРМУ</button>
+                    </div>
+                </div>
+            `);
+        }
+
+        // Mock for standard browser preview
+        if(typeof gmod === 'undefined') {
+            window.gmod = {
+                requestTab: function(tabName) {
+                    if (tabName === "Profile") {
+                        setLoading(tabName, "ПРОФИЛЬ");
+                        setTimeout(() => renderProfile(JSON.stringify({ name: "Иван Иванов", job: "D-Класс", money: 5400 })), 200);
+                    } else if (tabName === "Quests") {
+                        setLoading(tabName, "ЗАДАЧИ");
+                        setTimeout(() => renderQuests(JSON.stringify([
+                            { name: "Уборка сектора D", desc: "Собрать мусор в блоке содержания", goal: 5, progress: 2, reward: 500, completed: false },
+                            { name: "Охрана шлюза B", desc: "Предотвратить прорыв", goal: 1, progress: 1, reward: 1500, completed: true }
+                        ])), 200);
+                    } else if (tabName === "Shop") {
+                        setLoading(tabName, "АРСЕНАЛ");
+                        setTimeout(() => renderShop(JSON.stringify({ items: [{ name: "Аптечка", price: 250, id: "medkit" }, { name: "Бронежилет", price: 1000, id: "armor" }] })), 200);
+                    } else if (tabName === "Craft") {
+                        setLoading(tabName, "КРАФТ");
+                        setTimeout(() => renderCraft(JSON.stringify({ recipes: [{ name: "Осколочная граната", ingredientsText: "1x Порох, 2x Металл" }] })), 200);
+                    } else if (tabName === "BlackMarket") {
+                        setLoading(tabName, "ТЕНЕВОЙ РЫНОК");
+                        setTimeout(() => renderDarknet(JSON.stringify({ items: [{ name: "Взломщик дверей", category: "Контрабанда", price: 2500, id: "keycard_cracker" }] })), 200);
+                    } else if (tabName === "Patrols") {
+                        setLoading(tabName, "ПАТРУЛИ");
+                        renderPatrols();
+                    } else if (tabName === "Admin_Hub") {
+                        setLoading(tabName, "АДМИН ПАНЕЛЬ");
+                        renderAdminHub();
+                    } else if (tabName === "Raids") {
+                        setLoading(tabName, "РЕЙДЫ");
+                        renderRaids(JSON.stringify({ canDeclare: true, activeWar: null }));
+                    }
+                },
+                buyItem: function(id) { alert("Покупка предмета ID: " + id); },
+                closeTablet: function() { alert("Закрытие планшета"); },
+                playSound: function(snd) {},
+                startPatrol: function() { alert("Патруль начат"); }
+            };
+
+            window.onload = function() {
+                setupSidebar([
+                    { name: "ПРОФИЛЬ", tab: "Profile" },
+                    { name: "ЗАДАЧИ", tab: "Quests" },
+                    { name: "АРСЕНАЛ", tab: "Shop" },
+                    { name: "КРАФТ", tab: "Craft" },
+                    { name: "ДАРКНЕТ", tab: "BlackMarket" },
+                    { name: "ПАТРУЛИ", tab: "Patrols" },
+                    { name: "РЕЙДЫ", tab: "Raids" },
+                    { name: "АДМИН ПАНЕЛЬ", tab: "Admin_Hub" }
+                ]);
+                gmod.requestTab("Profile");
+            };
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.gmod && gmod.onReady) gmod.onReady();
+        });
+        window.addEventListener('load', () => {
+            if (window.gmod && gmod.onReady) gmod.onReady();
+        });
+    </script>
+</body>
+</html>
