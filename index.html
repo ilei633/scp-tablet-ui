@@ -2,7 +2,6 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>SCP Foundation OS - Tablet Interface</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap');
         
@@ -293,7 +292,7 @@
     <div class="main-content">
         <div class="header">
             <div id="header-title">ЛИЧНОЕ ДЕЛО</div>
-            <div style="color:var(--accent); font-weight:600; font-size:16px;">СИСТЕМА: <span style="color:#00ffaa">GITHUB LIVE</span></div>
+            <div style="color:var(--accent); font-weight:600; font-size:16px;">СИСТЕМА: <span style="color:#00ffaa">В СЕТИ</span></div>
         </div>
         <div id="view-container"></div>
     </div>
@@ -412,7 +411,7 @@
                         `;
                     });
                 } else {
-                    html = '<div class="card" style="grid-column: 1 / -1;"><div class="card-title">АРСЕНАЛ ПУСТ</div><div class="card-desc">Для вашей текущей специальности нет доступных предметов снабжения.</div></div>';
+                    html = '<div class="card" style="grid-column: 1 / -1;"><div class="card-title">МАГАЗИН ПУСТ</div><div class="card-desc">Для вашей текущей специальности нет доступных предметов снабжения.</div></div>';
                 }
                 html += '</div>';
                 setView(html);
@@ -594,60 +593,6 @@
                     </div>
                 </div>
             `);
-        }
-
-        // Mock for standard browser preview
-        if(typeof gmod === 'undefined') {
-            window.gmod = {
-                requestTab: function(tabName) {
-                    if (tabName === "Profile") {
-                        setLoading(tabName, "ПРОФИЛЬ");
-                        setTimeout(() => renderProfile(JSON.stringify({ name: "Иван Иванов", job: "D-Класс", money: 5400 })), 200);
-                    } else if (tabName === "Quests") {
-                        setLoading(tabName, "ЗАДАЧИ");
-                        setTimeout(() => renderQuests(JSON.stringify([
-                            { name: "Уборка сектора D", desc: "Собрать мусор в блоке содержания", goal: 5, progress: 2, reward: 500, completed: false },
-                            { name: "Охрана шлюза B", desc: "Предотвратить прорыв", goal: 1, progress: 1, reward: 1500, completed: true }
-                        ])), 200);
-                    } else if (tabName === "Shop") {
-                        setLoading(tabName, "АРСЕНАЛ");
-                        setTimeout(() => renderShop(JSON.stringify({ items: [{ name: "Аптечка", price: 250, id: "medkit" }, { name: "Бронежилет", price: 1000, id: "armor" }] })), 200);
-                    } else if (tabName === "Craft") {
-                        setLoading(tabName, "КРАФТ");
-                        setTimeout(() => renderCraft(JSON.stringify({ recipes: [{ name: "Осколочная граната", ingredientsText: "1x Порох, 2x Металл" }] })), 200);
-                    } else if (tabName === "BlackMarket") {
-                        setLoading(tabName, "ТЕНЕВОЙ РЫНОК");
-                        setTimeout(() => renderDarknet(JSON.stringify({ items: [{ name: "Взломщик дверей", category: "Контрабанда", price: 2500, id: "keycard_cracker" }] })), 200);
-                    } else if (tabName === "Patrols") {
-                        setLoading(tabName, "ПАТРУЛИ");
-                        renderPatrols();
-                    } else if (tabName === "Admin_Hub") {
-                        setLoading(tabName, "АДМИН ПАНЕЛЬ");
-                        renderAdminHub();
-                    } else if (tabName === "Raids") {
-                        setLoading(tabName, "РЕЙДЫ");
-                        renderRaids(JSON.stringify({ canDeclare: true, activeWar: null }));
-                    }
-                },
-                buyItem: function(id) { alert("Покупка предмета ID: " + id); },
-                closeTablet: function() { alert("Закрытие планшета"); },
-                playSound: function(snd) {},
-                startPatrol: function() { alert("Патруль начат"); }
-            };
-
-            window.onload = function() {
-                setupSidebar([
-                    { name: "ПРОФИЛЬ", tab: "Profile" },
-                    { name: "ЗАДАЧИ", tab: "Quests" },
-                    { name: "АРСЕНАЛ", tab: "Shop" },
-                    { name: "КРАФТ", tab: "Craft" },
-                    { name: "ДАРКНЕТ", tab: "BlackMarket" },
-                    { name: "ПАТРУЛИ", tab: "Patrols" },
-                    { name: "РЕЙДЫ", tab: "Raids" },
-                    { name: "АДМИН ПАНЕЛЬ", tab: "Admin_Hub" }
-                ]);
-                gmod.requestTab("Profile");
-            };
         }
 
         window.addEventListener('DOMContentLoaded', () => {
