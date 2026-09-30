@@ -7,39 +7,75 @@
         
         :root {
             --bg-main: #06080d;
-            --bg-sidebar: rgba(10, 12, 18, 0.9);
+            --bg-sidebar: rgba(10, 12, 18, 0.95);
             --bg-card: rgba(18, 22, 32, 0.7);
             --accent: #00d2ff;
             --accent-hover: #3aedff;
             --accent-green: #00ff88;
             --accent-red: #ff2a2a;
             --accent-orange: #ff9d00;
+            --accent-purple: #b44aff;
             --text-main: #e0f0ff;
             --text-dim: #7a8a9a;
             --border: rgba(0, 210, 255, 0.25);
         }
         
+        * { box-sizing: border-box; }
+
+        /* Custom scrollbars */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 210, 255, 0.25); border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0, 210, 255, 0.5); }
+        
+        /* Hide sidebar scrollbar completely */
+        .nav-container::-webkit-scrollbar { width: 0; display: none; }
+        .nav-container { scrollbar-width: none; -ms-overflow-style: none; }
+        
+        /* Thin scrollbar for content */
+        #view-container { scrollbar-width: thin; scrollbar-color: rgba(0,210,255,0.25) transparent; }
+
         body {
             margin: 0; padding: 0;
             background-color: var(--bg-main);
             background-image: 
-                linear-gradient(rgba(0, 210, 255, 0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 210, 255, 0.04) 1px, transparent 1px);
+                linear-gradient(rgba(0, 210, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 210, 255, 0.03) 1px, transparent 1px);
             background-size: 40px 40px;
             color: var(--text-main);
             font-family: 'Chakra Petch', sans-serif;
-            display: flex; height: 100vh; overflow: hidden; user-select: none;
+            display: flex; flex-direction: column; height: 100vh; overflow: hidden; user-select: none;
         }
 
+        /* ===== BOOT SCREEN ===== */
+        #boot-screen {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 999;
+            background: #020408;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.5s;
+        }
+        #boot-screen.hidden { opacity: 0; pointer-events: none; }
+        .boot-logo { font-size: 36px; font-weight: 700; color: var(--accent); letter-spacing: 4px; margin-bottom: 30px; text-shadow: 0 0 20px rgba(0,210,255,0.5); }
+        .boot-line { font-size: 14px; color: var(--accent-green); font-family: 'Courier New', monospace; margin: 3px 0; opacity: 0; animation: bootFadeIn 0.3s forwards; }
+        .boot-progress { width: 300px; height: 3px; background: rgba(0,210,255,0.1); margin-top: 25px; border-radius: 2px; overflow: hidden; }
+        .boot-progress-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-green)); animation: bootLoad 1.5s ease forwards; }
+        @keyframes bootFadeIn { to { opacity: 1; } }
+        @keyframes bootLoad { to { width: 100%; } }
+
+        /* ===== MAIN LAYOUT ===== */
+        #main-container { display: flex; flex: 1; overflow: hidden; opacity: 0; transition: opacity 0.5s; }
+        #main-container.visible { opacity: 1; }
+
+        /* ===== SIDEBAR ===== */
         #sidebar {
-            width: 260px;
+            width: 250px; min-width: 250px;
             background-color: var(--bg-sidebar);
             border-right: 1px solid var(--border);
             display: flex; flex-direction: column; z-index: 10;
         }
         
         .logo-container {
-            padding: 25px 20px; text-align: center; border-bottom: 1px solid var(--border);
+            padding: 20px 15px; text-align: center; border-bottom: 1px solid var(--border);
             background: rgba(0, 210, 255, 0.05); position: relative;
         }
         .logo-container::after {
@@ -47,163 +83,287 @@
             background: linear-gradient(90deg, transparent, var(--accent), transparent);
         }
         .logo-title {
-            font-size: 26px; font-weight: 700; color: var(--accent); letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+            font-size: 24px; font-weight: 700; color: var(--accent); letter-spacing: 3px;
+            text-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
         }
-        .logo-sub { font-size: 12px; color: var(--accent-green); letter-spacing: 1px; margin-top: 5px; }
+        .logo-sub { font-size: 11px; color: var(--accent-green); letter-spacing: 2px; margin-top: 4px; }
         
-        .nav-container { flex: 1; padding: 15px 0; overflow-y: auto; }
+        .nav-container { flex: 1; padding: 10px 0; overflow-y: auto; }
         
         .nav-btn {
-            display: block; width: 100%; box-sizing: border-box;
+            display: flex; align-items: center; gap: 12px;
+            width: 100%;
             background: transparent; border: none; color: var(--text-dim);
-            padding: 15px 25px; text-align: left; font-family: 'Chakra Petch', sans-serif;
-            font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s;
+            padding: 13px 20px; text-align: left; font-family: 'Chakra Petch', sans-serif;
+            font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.25s;
             border-left: 3px solid transparent; text-transform: uppercase; letter-spacing: 1px;
         }
+        .nav-btn .icon { font-size: 18px; width: 24px; text-align: center; filter: grayscale(0.5); transition: filter 0.25s; }
         .nav-btn:hover {
-            color: var(--text-main); background: rgba(0, 210, 255, 0.05);
-            border-left: 3px solid var(--accent); padding-left: 30px;
+            color: var(--text-main); background: rgba(0, 210, 255, 0.06);
+            border-left-color: var(--accent); padding-left: 24px;
             text-shadow: 0 0 5px var(--accent);
         }
+        .nav-btn:hover .icon { filter: grayscale(0); }
         .nav-btn.active {
-            color: #fff; background: rgba(0, 210, 255, 0.1);
-            border-left: 3px solid var(--accent);
-            box-shadow: inset 20px 0 20px -20px var(--accent);
+            color: #fff; background: rgba(0, 210, 255, 0.12);
+            border-left-color: var(--accent);
+            box-shadow: inset 25px 0 25px -25px rgba(0,210,255,0.3);
         }
+        .nav-btn.active .icon { filter: grayscale(0); }
+        .nav-btn.close-btn { color: var(--accent-red); border-top: 1px solid var(--border); margin-top: auto; }
+        .nav-btn.close-btn:hover { background: rgba(255,42,42,0.1); border-left-color: var(--accent-red); }
+        .nav-btn.close-btn .icon { filter: grayscale(0); }
 
-        #content-area { flex: 1; display: flex; flex-direction: column; position: relative; z-index: 5; }
+        /* ===== CONTENT ===== */
+        #content-area { flex: 1; display: flex; flex-direction: column; position: relative; z-index: 5; overflow: hidden; }
         #header {
-            height: 70px; border-bottom: 1px solid var(--border); display: flex;
-            align-items: center; justify-content: space-between; padding: 0 30px;
-            background: rgba(10, 12, 18, 0.7); backdrop-filter: blur(5px);
+            height: 60px; min-height: 60px; border-bottom: 1px solid var(--border); display: flex;
+            align-items: center; justify-content: space-between; padding: 0 25px;
+            background: rgba(10, 12, 18, 0.8); backdrop-filter: blur(5px);
         }
         #header-title {
-            font-size: 22px; font-weight: 600; color: #fff; letter-spacing: 2px;
-            text-shadow: 0 0 8px rgba(255,255,255,0.3); text-transform: uppercase;
+            font-size: 20px; font-weight: 600; color: #fff; letter-spacing: 2px;
+            text-shadow: 0 0 8px rgba(255,255,255,0.2); text-transform: uppercase;
+        }
+        #header-badge {
+            font-size: 12px; color: var(--accent-green); border: 1px solid var(--accent-green);
+            padding: 4px 10px; letter-spacing: 1px;
         }
         
-        #view-container { flex: 1; padding: 30px; overflow-y: auto; position: relative; }
+        #view-container {
+            flex: 1; padding: 25px; overflow-y: auto; position: relative;
+            transition: opacity 0.25s ease;
+        }
+        #view-container.fading { opacity: 0; }
 
+        /* ===== STATUS BAR ===== */
+        #status-bar {
+            height: 28px; min-height: 28px; background: rgba(5, 8, 14, 0.95);
+            border-top: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px; font-size: 11px; color: var(--text-dim); letter-spacing: 1px;
+            font-family: 'Courier New', monospace;
+        }
+        #status-bar .status-left, #status-bar .status-right { display: flex; gap: 20px; align-items: center; }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 6px var(--accent-green); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* ===== TOAST NOTIFICATIONS ===== */
+        #toast-container { position: fixed; top: 15px; right: 15px; z-index: 500; display: flex; flex-direction: column; gap: 8px; }
+        .toast {
+            background: rgba(10, 15, 25, 0.95); border: 1px solid var(--accent); border-left: 4px solid var(--accent);
+            padding: 12px 18px; color: var(--text-main); font-size: 13px; font-weight: 600;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.6); backdrop-filter: blur(10px);
+            animation: toastIn 0.3s ease; min-width: 250px; letter-spacing: 0.5px;
+        }
+        .toast.success { border-color: var(--accent-green); border-left-color: var(--accent-green); }
+        .toast.error { border-color: var(--accent-red); border-left-color: var(--accent-red); }
+        .toast.warning { border-color: var(--accent-orange); border-left-color: var(--accent-orange); }
+        .toast-removing { animation: toastOut 0.3s ease forwards; }
+        @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes toastOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+
+        /* ===== CARDS ===== */
         .card {
             background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px;
-            padding: 25px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            position: relative; overflow: hidden;
+            padding: 22px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            position: relative; overflow: hidden; transition: border-color 0.3s, box-shadow 0.3s;
         }
+        .card:hover { border-color: rgba(0,210,255,0.4); box-shadow: 0 4px 20px rgba(0,210,255,0.1); }
         .card::before {
             content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
             background: var(--accent);
         }
-        .card-title { font-size: 20px; font-weight: 700; margin-bottom: 10px; color: #fff; }
-        .card-desc { font-size: 15px; color: var(--text-dim); margin-bottom: 20px; line-height: 1.5; }
+        .card-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; color: #fff; letter-spacing: 0.5px; }
+        .card-desc { font-size: 14px; color: var(--text-dim); margin-bottom: 16px; line-height: 1.5; }
         
-        .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .profile-stat {
             background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05);
-            padding: 15px; border-left: 3px solid var(--accent);
+            padding: 14px; border-left: 3px solid var(--accent); transition: background 0.3s;
         }
-        .stat-label { font-size: 13px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px; }
-        .stat-value { font-size: 24px; font-weight: 700; color: #fff; }
+        .profile-stat:hover { background: rgba(0,210,255,0.05); }
+        .stat-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }
+        .stat-value { font-size: 22px; font-weight: 700; color: #fff; }
         .stat-value.money { color: var(--accent-green); text-shadow: 0 0 10px rgba(0,255,136,0.3); }
+
+        /* Progress bar */
+        .progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
 
         .list-row {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05);
-            margin-bottom: 10px; border-left: 3px solid var(--accent); transition: 0.2s;
+            padding: 14px 18px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 8px; border-left: 3px solid var(--accent); transition: all 0.2s;
         }
-        .list-row:hover { background: rgba(0,210,255,0.05); border-color: rgba(0,210,255,0.2); }
+        .list-row:hover { background: rgba(0,210,255,0.06); border-color: rgba(0,210,255,0.2); transform: translateX(3px); }
         .row-info { display: flex; flex-direction: column; }
-        .row-title { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 5px; }
-        .row-sub { font-size: 14px; color: var(--text-dim); max-width: 500px; }
+        .row-title { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+        .row-sub { font-size: 13px; color: var(--text-dim); max-width: 500px; }
         
         .btn {
-            background: rgba(0,210,255,0.1); border: 1px solid var(--accent); color: var(--accent);
-            padding: 8px 15px; font-family: 'Chakra Petch', sans-serif; font-size: 14px;
-            font-weight: 600; cursor: pointer; transition: 0.2s; text-transform: uppercase;
+            background: rgba(0,210,255,0.08); border: 1px solid var(--accent); color: var(--accent);
+            padding: 8px 16px; font-family: 'Chakra Petch', sans-serif; font-size: 13px;
+            font-weight: 600; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 15px rgba(0,210,255,0.4); }
-        .btn-red { border-color: var(--accent-red); color: var(--accent-red); background: rgba(255,42,42,0.1); }
+        .btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 15px rgba(0,210,255,0.4); transform: translateY(-1px); }
+        .btn-red { border-color: var(--accent-red); color: var(--accent-red); background: rgba(255,42,42,0.08); }
         .btn-red:hover { background: var(--accent-red); color: #000; box-shadow: 0 0 15px rgba(255,42,42,0.4); }
+        .btn-green { border-color: var(--accent-green); color: var(--accent-green); background: rgba(0,255,136,0.08); }
+        .btn-green:hover { background: var(--accent-green); color: #000; }
 
-        .loader {
-            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;
+        /* Filter tabs */
+        .filter-tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+        .filter-tab {
+            background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: var(--text-dim);
+            padding: 8px 16px; font-family: 'Chakra Petch'; font-size: 12px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px;
         }
+        .filter-tab:hover { color: var(--accent); border-color: var(--accent); }
+        .filter-tab.active { background: rgba(0,210,255,0.15); color: var(--accent); border-color: var(--accent); }
+
+        .loader { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
         .spinner {
-            width: 50px; height: 50px; border: 3px solid rgba(0,210,255,0.1);
-            border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite;
-            margin-bottom: 20px;
+            width: 40px; height: 40px; border: 3px solid rgba(0,210,255,0.1);
+            border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite;
+            margin-bottom: 15px;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
     
-        .darknet-theme {
-            --bg-main: #030303 !important;
-            --bg-sidebar: #050505 !important;
-            --bg-card: rgba(0, 255, 0, 0.05) !important;
-            --accent: #0f0 !important;
-            --accent-hover: #fff !important;
-            --accent-green: #0f0 !important;
-            --text-main: #0f0 !important;
-            --text-dim: #00aa00 !important;
-            --border: #0f0 !important;
-            font-family: 'Courier New', monospace !important;
-        }
-        .darknet-theme .logo-title {
-            animation: glitch 2s infinite;
-        }
-        .darknet-theme .nav-btn {
-            font-family: 'Courier New', monospace !important;
-            border-bottom: 1px dashed #0f0;
-        }
-        .darknet-theme::before {
-            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 200; background-size: 100% 2px, 3px 100%; pointer-events: none;
-        }
-        .darknet-scanline {
-            width: 100%; height: 100px;
-            background: linear-gradient(0deg, rgba(0,255,0,0) 0%, rgba(0,255,0,0.1) 50%, rgba(0,255,0,0) 100%);
-            position: absolute; opacity: 0.4; animation: scan 8s linear infinite; pointer-events: none; z-index: 201;
-            display: none;
-        }
-        .darknet-theme .darknet-scanline { display: block; }
+        /* Darknet theme */
+        .darknet-theme { --bg-main:#030303!important; --bg-sidebar:#050505!important; --bg-card:rgba(0,255,0,0.05)!important; --accent:#0f0!important; --accent-hover:#fff!important; --accent-green:#0f0!important; --text-main:#0f0!important; --text-dim:#00aa00!important; --border:#0f0!important; font-family:'Courier New',monospace!important; }
+        .darknet-theme .logo-title { animation: glitch 2s infinite; }
+        .darknet-theme .nav-btn { font-family:'Courier New',monospace!important; border-bottom:1px dashed #0f0; }
+        .darknet-scanline { width:100%; height:100px; background:linear-gradient(0deg,rgba(0,255,0,0)0%,rgba(0,255,0,0.08)50%,rgba(0,255,0,0)100%); position:absolute; opacity:0.4; animation:scan 6s linear infinite; pointer-events:none; z-index:201; display:none; }
+        .darknet-theme .darknet-scanline { display:block; }
+        @keyframes scan { 0%{top:-100px}100%{top:100%} }
         
-        .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .bounty-card { border: 1px dashed #f00; padding: 15px; background: rgba(255,0,0,0.05); margin-bottom: 15px; position:relative;}
-        .bounty-card h3 { color: #f00; margin:0 0 10px 0; text-shadow: 0 0 5px #f00; }
+        .market-grid { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
+        .bounty-card { border:1px dashed #f00; padding:15px; background:rgba(255,0,0,0.05); margin-bottom:15px; position:relative;}
+        .bounty-card h3 { color:#f00; margin:0 0 10px 0; text-shadow:0 0 5px #f00; }
         .bounty-reward { position:absolute; top:15px; right:15px; font-size:24px; color:#0f0; font-weight:bold; }
-        
         .darknet-tabs { display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid #0f0; padding-bottom:10px;}
         .dn-tab { background:none; border:1px solid #0f0; color:#0f0; padding:10px 20px; cursor:pointer; font-family:monospace; }
-        .dn-tab:hover, .dn-tab.active { background:#0f0; color:#000; font-weight:bold; }
+        .dn-tab:hover,.dn-tab.active { background:#0f0; color:#000; font-weight:bold; }
 
+        /* Scan overlay */
+        .scan-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 100;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,210,255,0.008) 2px, rgba(0,210,255,0.008) 4px);
+        }
     </style>
 </head>
 <body>
+    <!-- Scan overlay -->
+    <div class="scan-overlay"></div>
     <div class="darknet-scanline"></div>
-    <div id="sidebar">
-        <div class="logo-container">
-            <div class="logo-title">SECURE.OS</div>
-            <div class="logo-sub">FOUNDATION NETWORK</div>
-        </div>
-                <div class="nav-container" id="nav-menu"></div>
-        <div style="flex-grow: 1;"></div>
-        <button class="nav-btn" style="color: var(--accent-red); border-top: 1px solid var(--border);" onclick="gmod.closeTablet()">ЗАКРЫТЬ [ESC]</button>
 
+    <!-- Boot Screen -->
+    <div id="boot-screen">
+        <div class="boot-logo">SECURE.OS</div>
+        <div id="boot-lines"></div>
+        <div class="boot-progress"><div class="boot-progress-bar"></div></div>
     </div>
-    
-    <div id="content-area">
-        <div id="header">
-            <div id="header-title">ЗАГРУЗКА...</div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Main Container -->
+    <div id="main-container">
+        <div id="sidebar">
+            <div class="logo-container">
+                <div class="logo-title">SECURE.OS</div>
+                <div class="logo-sub">FOUNDATION NETWORK</div>
+            </div>
+            <div class="nav-container" id="nav-menu"></div>
+            <div style="flex-grow: 1;"></div>
+            <button class="nav-btn close-btn" onclick="gmod.closeTablet()">
+                <span class="icon">⛔</span> ЗАКРЫТЬ [ESC]
+            </button>
         </div>
-        <div id="view-container"></div>
+        
+        <div id="content-area">
+            <div id="header">
+                <div id="header-title">ЗАГРУЗКА...</div>
+                <div id="header-badge">СИСТЕМА АКТИВНА</div>
+            </div>
+            <div id="view-container"></div>
+            <div id="status-bar">
+                <div class="status-left">
+                    <span>SECURE.OS v3.2</span>
+                    <span style="display:flex; align-items:center; gap:5px;"><span class="status-dot"></span> СОЕДИНЕНИЕ СТАБИЛЬНО</span>
+                </div>
+                <div class="status-right">
+                    <span id="status-sector">СЕКТОР: —</span>
+                    <span id="status-clock">00:00:00</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
+        // ===== BOOT ANIMATION =====
+        const bootLines = [
+            'Инициализация ядра...',
+            'Загрузка модулей безопасности...',
+            'Подключение к сети Фонда...',
+            'Синхронизация баз данных...',
+            'Авторизация: ДОСТУП РАЗРЕШЕН'
+        ];
+        
+        function runBoot() {
+            const container = document.getElementById('boot-lines');
+            bootLines.forEach((line, i) => {
+                setTimeout(() => {
+                    const el = document.createElement('div');
+                    el.className = 'boot-line';
+                    el.style.animationDelay = '0s';
+                    el.textContent = '> ' + line;
+                    container.appendChild(el);
+                }, i * 300);
+            });
+            
+            setTimeout(() => {
+                document.getElementById('boot-screen').classList.add('hidden');
+                document.getElementById('main-container').classList.add('visible');
+                if (window.gmod && gmod.onReady) gmod.onReady();
+            }, bootLines.length * 300 + 600);
+        }
+
+        // ===== CLOCK =====
+        setInterval(() => {
+            const now = new Date();
+            const t = [now.getHours(), now.getMinutes(), now.getSeconds()].map(n => String(n).padStart(2, '0')).join(':');
+            const el = document.getElementById('status-clock');
+            if (el) el.textContent = t;
+        }, 1000);
+
+        // ===== TOAST SYSTEM =====
+        function showToast(message, type) {
+            type = type || 'info';
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('toast-removing');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ===== VIEW MANAGEMENT =====
         function setView(html) {
-            document.getElementById('view-container').innerHTML = html;
+            const vc = document.getElementById('view-container');
+            vc.classList.add('fading');
+            setTimeout(() => {
+                vc.innerHTML = html;
+                vc.classList.remove('fading');
+            }, 150);
         }
         
-                function setLoading(tabId, title) {
+        function setLoading(tabId, title) {
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             const activeBtn = document.getElementById('nav-' + tabId);
             if(activeBtn) activeBtn.classList.add('active');
@@ -212,35 +372,219 @@
             else document.body.classList.remove('darknet-theme');
             
             document.getElementById('header-title').innerText = title;
-            setView('<div class="loader"><div class="spinner"></div><div style="color:var(--accent); font-weight:600; letter-spacing:2px">ЗАГРУЗКА...</div></div>');
-            gmod.playSound('UI/buttonrollover.wav');
+            setView('<div class="loader"><div class="spinner"></div><div style="color:var(--accent); font-weight:600; letter-spacing:2px; font-size:13px">ЗАГРУЗКА ДАННЫХ...</div></div>');
         }
+
+        // ===== SIDEBAR SETUP =====
+        const tabIcons = {
+            'Profile': '👤', 'Quests': '📋', 'Shop': '🛒', 'Craft': '🔧',
+            'Map': '🗺', 'Patrols': '🛡', 'Reports': '📝', 'BlackMarket': '💀',
+            'Darknet': '💀', 'Raids': '⚔', 'GOC_Terminal': '📡', 'MTF_Ops': '🎯',
+            'Admin_Hub': '⚙'
+        };
 
         function setupSidebar(json) {
             const btns = JSON.parse(json);
             let html = '';
             btns.forEach(b => {
-                html += `<button class="nav-btn" id="nav-${b.tab}" onclick="gmod.requestTab('${b.tab}')">${b.name}</button>`;
+                const icon = tabIcons[b.tab] || '📁';
+                html += `<button class="nav-btn" id="nav-${b.tab}" onclick="gmod.requestTab('${b.tab}')"><span class="icon">${icon}</span> ${b.name}</button>`;
             });
             document.getElementById('nav-menu').innerHTML = html;
         }
 
-        
+        // ===== RENDER FUNCTIONS =====
+
+        function renderProfile(dataJson) {
+            const data = JSON.parse(dataJson);
+            const playTime = data.playTime || '—';
+            const kills = data.kills || 0;
+            const deaths = data.deaths || 0;
+            const kd = deaths > 0 ? (kills / deaths).toFixed(1) : kills;
+            const rankProgress = data.rankProgress || 65;
+
+            setView(`
+                <div class="card">
+                    <div class="card-title">ЛИЧНОЕ ДЕЛО СОТРУДНИКА</div>
+                    <div class="card-desc">Доступ к базе данных авторизован. Прикрепленные данные ниже.</div>
+                    <div class="profile-grid">
+                        <div class="profile-stat">
+                            <div class="stat-label">ПОЗЫВНОЙ / ИМЯ</div>
+                            <div class="stat-value">${data.name}</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="stat-label">ДОЛЖНОСТЬ</div>
+                            <div class="stat-value" style="color: #ddd; font-size:18px;">${data.job}</div>
+                        </div>
+                        <div class="profile-stat" style="border-left-color: var(--accent-green)">
+                            <div class="stat-label">ЛИЧНЫЙ СЧЕТ</div>
+                            <div class="stat-value money">$${data.money}</div>
+                        </div>
+                        <div class="profile-stat" style="border-left-color: var(--accent-orange)">
+                            <div class="stat-label">СТАТУС ДОСТУПА</div>
+                            <div class="stat-value" style="color:var(--accent-green)">АКТИВЕН</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" style="border-left-color: var(--accent-purple)">
+                    <div class="card-title" style="color:var(--accent-purple)">СТАТИСТИКА СЛУЖБЫ</div>
+                    <div class="profile-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                        <div class="profile-stat" style="border-left-color:var(--accent-green)">
+                            <div class="stat-label">ВРЕМЯ НА СЕРВЕРЕ</div>
+                            <div class="stat-value" style="font-size:18px; color:var(--accent-green)">${playTime}</div>
+                        </div>
+                        <div class="profile-stat" style="border-left-color:var(--accent-red)">
+                            <div class="stat-label">К/Д</div>
+                            <div class="stat-value" style="font-size:18px;">${kills} / ${deaths} <span style="font-size:14px; color:var(--text-dim)">(${kd})</span></div>
+                        </div>
+                        <div class="profile-stat" style="border-left-color:var(--accent-orange)">
+                            <div class="stat-label">ПРОГРЕСС ЗВАНИЯ</div>
+                            <div class="stat-value" style="font-size:16px; color:var(--accent-orange)">${rankProgress}%</div>
+                            <div class="progress-bar"><div class="progress-fill" style="width:${rankProgress}%; background:linear-gradient(90deg, var(--accent-orange), var(--accent-green));"></div></div>
+                        </div>
+                    </div>
+                </div>
+            `);
+        }
+
+        function renderQuests(dataJson) {
+            const data = JSON.parse(dataJson);
+            let html = '';
+            if (!data.quests || !data.quests.length) {
+                html = '<div class="card" style="text-align:center; padding:40px;"><div class="card-desc" style="font-size:16px;">Активных заданий нет. Проверьте позже.</div></div>';
+            } else {
+                data.quests.forEach(q => {
+                    const color = q.completed ? 'var(--accent-green)' : 'var(--accent)';
+                    const status = q.completed ? '✓ ВЫПОЛНЕНО' : `${q.progress} / ${q.goal}`;
+                    const pct = q.goal > 0 ? Math.min(100, (q.progress / q.goal) * 100) : 0;
+                    html += `
+                        <div class="list-row" style="border-left-color: ${color}">
+                            <div class="row-info" style="flex:1">
+                                <div class="row-title" style="color: ${color}">${q.name}</div>
+                                <div class="row-sub">${q.desc}</div>
+                                <div class="progress-bar" style="margin-top:10px; height:4px;">
+                                    <div class="progress-fill" style="width:${pct}%; background:${color};"></div>
+                                </div>
+                            </div>
+                            <div style="text-align:right; margin-left:20px;">
+                                <div style="color:var(--accent-green); font-weight:bold; font-size:20px;">$${q.reward}</div>
+                                <div style="color:${color}; font-size:12px; margin-top:4px; font-weight:600;">${status}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            setView(html);
+        }
+
+        function renderQuestsV2(dataJson) { renderQuests(dataJson); }
+
+        function renderShop(dataJson) {
+            const data = JSON.parse(dataJson);
+            const categories = ['ВСЕ'];
+            data.items.forEach(item => { if (item.category && !categories.includes(item.category)) categories.push(item.category); });
+
+            let filterHtml = '<div class="filter-tabs">';
+            categories.forEach((cat, i) => {
+                filterHtml += `<button class="filter-tab ${i === 0 ? 'active' : ''}" onclick="filterShop('${cat}')">${cat}</button>`;
+            });
+            filterHtml += '</div>';
+
+            let itemsHtml = '<div class="market-grid" id="shop-grid">';
+            data.items.forEach(item => {
+                itemsHtml += `
+                    <div class="card shop-item" data-cat="${item.category || 'ВСЕ'}" style="margin-bottom:0; padding:18px;">
+                        <div class="card-title" style="font-size:16px; color:var(--accent)">${item.name}</div>
+                        <div style="color:var(--accent-green); font-size:22px; font-weight:bold; margin:10px 0;">$${item.price}</div>
+                        <button class="btn" style="width:100%" onclick="gmod.buyItem('${item.id}')">ПРИОБРЕСТИ</button>
+                    </div>
+                `;
+            });
+            itemsHtml += '</div>';
+            setView(filterHtml + itemsHtml);
+        }
+
+        function filterShop(cat) {
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.shop-item').forEach(item => {
+                item.style.display = (cat === 'ВСЕ' || item.dataset.cat === cat) ? 'block' : 'none';
+            });
+        }
+
+        function renderCraft(dataJson) {
+            const data = JSON.parse(dataJson);
+            let html = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">';
+            data.recipes.forEach(r => {
+                html += `
+                    <div class="card" style="margin-bottom:0; padding:18px; border-left-color:var(--accent-orange)">
+                        <div class="card-title" style="font-size:16px; color:var(--accent-orange)">${r.name}</div>
+                        <div style="color:var(--text-dim); font-size:13px;">Компоненты: <span style="color:#fff">${r.ingredientsText}</span></div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            setView(html);
+        }
+
+        function renderPatrols() {
+            setView(`
+                <div class="card" style="border-left-color: var(--accent)">
+                    <div class="card-title">СИСТЕМА ПАТРУЛЕЙ</div>
+                    <div class="card-desc">Начните патрулирование комплекса для получения премиальных выплат. Вам будут назначены точки маршрута.</div>
+                    <button class="btn" style="font-size:16px; padding:14px 30px; margin-top:10px" onclick="gmod.startPatrol()">🛡 НАЧАТЬ ПАТРУЛЬ</button>
+                </div>
+            `);
+        }
+
+        function renderAdminHub() {
+            setView(`
+                <div class="card" style="border-left-color: var(--accent-red)">
+                    <div class="card-title" style="color: var(--accent-red)">⚙ ПАНЕЛЬ АДМИНИСТРАТОРА</div>
+                    <div class="card-desc">Экстренное управление комплексом и событиями.</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:15px;">
+                        <button class="btn btn-red" onclick="gmod.adminAction('breach')">🚨 ОБЪЯВИТЬ НАРУШЕНИЕ</button>
+                        <button class="btn btn-red" onclick="gmod.adminAction('lightsoff')">🔌 ВЫКЛЮЧИТЬ ПИТАНИЕ</button>
+                        <button class="btn btn-green" onclick="gmod.adminAction('lightson')">💡 ВКЛЮЧИТЬ ПИТАНИЕ</button>
+                        <button class="btn" onclick="gmod.adminAction('airdrop')">📦 ВЫЗВАТЬ АИРДРОП</button>
+                    </div>
+                </div>
+            `);
+        }
+
+        function renderRaids() {
+            setView(`
+                <div class="card" style="border-left-color: var(--accent-orange)">
+                    <div class="card-title" style="color:var(--accent-orange)">⚔ ЗАПРОС НА РЕЙД</div>
+                    <div class="card-desc">Отправка официального запроса на проведение рейда. Ожидается подтверждение другой стороны.</div>
+                    <div style="display:flex; flex-direction:column; gap:12px; margin-top:15px;">
+                        <div>
+                            <label style="color:var(--accent-orange); font-weight:bold; font-size:13px; margin-bottom:5px; display:block; letter-spacing:1px;">ЦЕЛЬ РЕЙДА (ФРАКЦИЯ):</label>
+                            <input type="text" id="raid-target" placeholder="Например: Фонд, ГОК, Повстанцы..." style="width:100%; background:rgba(0,0,0,0.5); border:1px solid var(--accent-orange); color:#fff; padding:10px; font-family:'Chakra Petch'; font-size:15px; outline:none;">
+                        </div>
+                        <div>
+                            <label style="color:var(--accent-orange); font-weight:bold; font-size:13px; margin-bottom:5px; display:block; letter-spacing:1px;">ПРИЧИНА РЕЙДА:</label>
+                            <textarea id="raid-reason" placeholder="Укажите RP причину..." style="width:100%; height:80px; background:rgba(0,0,0,0.5); border:1px solid var(--accent-orange); color:#fff; padding:10px; font-family:'Chakra Petch'; font-size:15px; outline:none; resize:none;"></textarea>
+                        </div>
+                        <button class="btn" style="width:100%; font-size:16px; padding:12px; border-color:var(--accent-orange); color:var(--accent-orange)" onclick="gmod.declareRaid(document.getElementById('raid-target').value, document.getElementById('raid-reason').value)">ОТПРАВИТЬ ЗАПРОС НА РЕЙД</button>
+                    </div>
+                </div>
+            `);
+        }
+
         function renderDarknet(dataJson) {
             const data = JSON.parse(dataJson);
-            
             let marketHtml = '<div class="market-grid">';
             data.items.forEach(item => {
                 let priceMod = Math.random() > 0.5 ? 1 : -1;
                 let trend = priceMod > 0 ? '<span style="color:#0f0">▲ +15%</span>' : '<span style="color:#f00">▼ -5%</span>';
-                
                 marketHtml += `
-                    <div class="card" style="border: 1px solid #0f0; border-radius:0; background: rgba(0,255,0,0.02)">
-                        <div style="font-size:18px; font-weight:bold; color:#0f0;">${item.name}</div>
+                    <div class="card" style="border:1px solid #0f0; border-radius:0; background:rgba(0,255,0,0.02)">
+                        <div style="font-size:16px; font-weight:bold; color:#0f0;">${item.name}</div>
                         <div style="color:#aaa; font-size:12px; margin-bottom:10px;">${item.category}</div>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <div>${trend}<br>$${item.price}</div>
-                            <button class="nav-btn" style="width:auto; border:1px solid #0f0; color:#0f0; padding:5px 10px; text-align:center;" onclick="gmod.buyItem('${item.id}')">ЗАКАЗАТЬ</button>
+                            <button class="nav-btn" style="width:auto; border:1px solid #0f0; color:#0f0; padding:5px 10px; text-align:center; font-size:12px;" onclick="gmod.buyItem('${item.id}')">ЗАКАЗАТЬ</button>
                         </div>
                     </div>
                 `;
@@ -252,12 +596,10 @@
                     <button class="dn-tab active" onclick="switchDN('market')">БИРЖА ТЕНЕВОГО РЫНКА</button>
                     <button class="dn-tab" onclick="switchDN('bounties')">КОНТРАКТЫ НА ИГРОКОВ</button>
                 </div>
-                
                 <div id="dn-market">
-                    <p style="color:#aaa">Цены динамические. Товары доставляются в случайные тайники.</p>
+                    <p style="color:#aaa; font-size:13px;">Цены динамические. Товары доставляются в случайные тайники.</p>
                     ${marketHtml}
                 </div>
-                
                 <div id="dn-bounties" style="display:none;">
                     <div class="bounty-card">
                         <h3>ЦЕЛЬ: Директор Зоны</h3>
@@ -277,164 +619,21 @@
             event.target.classList.add('active');
         }
 
-
-        function renderProfile(dataJson) {
-            const data = JSON.parse(dataJson);
-            setView(`
-                <div class="card">
-                    <div class="card-title">ЛИЧНОЕ ДЕЛО СОТРУДНИКА</div>
-                    <div class="card-desc">Доступ к базе данных авторизован. Прикрепленные данные ниже.</div>
-                    <div class="profile-grid">
-                        <div class="profile-stat">
-                            <div class="stat-label">ПОЗЫВНОЙ / ИМЯ</div>
-                            <div class="stat-value">${data.name}</div>
-                        </div>
-                        <div class="profile-stat">
-                            <div class="stat-label">ДОЛЖНОСТЬ</div>
-                            <div class="stat-value" style="color: #ddd">${data.job}</div>
-                        </div>
-                        <div class="profile-stat" style="border-left-color: var(--accent-green)">
-                            <div class="stat-label">ЛИЧНЫЙ СЧЕТ</div>
-                            <div class="stat-value money">$${data.money}</div>
-                        </div>
-                        <div class="profile-stat" style="border-left-color: var(--accent-orange)">
-                            <div class="stat-label">СТАТУС ДОСТУПА</div>
-                            <div class="stat-value" style="color:var(--accent-orange)">АКТИВЕН</div>
-                        </div>
-                    </div>
-                </div>
-            `);
-        }
-
-        function renderQuests(dataJson) {
-            const data = JSON.parse(dataJson);
-            let html = '';
-            data.quests.forEach(q => {
-                const color = q.completed ? 'var(--accent-green)' : 'var(--accent)';
-                const status = q.completed ? '[ ВЫПОЛНЕНО ]' : `[ ${q.progress} / ${q.goal} ]`;
-                html += `
-                    <div class="list-row" style="border-left-color: ${color}">
-                        <div class="row-info">
-                            <div class="row-title" style="color: ${color}">${q.name} <span style="font-size:16px; opacity:0.8; margin-left:10px">${status}</span></div>
-                            <div class="row-sub">${q.desc}</div>
-                        </div>
-                        <div class="row-action">
-                            <div style="color: var(--accent-green); font-weight: bold; font-size: 24px;">$${q.reward}</div>
-                        </div>
-                    </div>
-                `;
-            });
-            setView(html);
-        }
-
-        function renderQuestsV2(dataJson) {
-            // Alias: QuestSystem sends data under the V2 event name.
-            // If QuestSystem's payload shape ever diverges from the classic
-            // {quests: [...]} format used by renderQuests, adjust the mapping here.
-            renderQuests(dataJson);
-        }
-
-        function renderShop(dataJson) {
-            const data = JSON.parse(dataJson);
-            let html = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">';
-            data.items.forEach(item => {
-                html += `
-                    <div class="card" style="margin-bottom:0; padding:20px;">
-                        <div class="card-title" style="font-size:18px; color:var(--accent)">${item.name}</div>
-                        <div style="color:var(--accent-green); font-size:20px; font-weight:bold; margin-bottom:15px;">$${item.price}</div>
-                        <button class="btn" style="width:100%" onclick="alert('Куплено: ${item.name}')">ПРИОБРЕСТИ</button>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            setView(html);
-        }
-
-        function renderCraft(dataJson) {
-            const data = JSON.parse(dataJson);
-            let html = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">';
-            data.recipes.forEach(r => {
-                html += `
-                    <div class="card" style="margin-bottom:0; padding:20px; border-left-color:var(--accent-orange)">
-                        <div class="card-title" style="font-size:18px; color:var(--accent-orange)">${r.name}</div>
-                        <div style="color:var(--text-dim); font-size:14px; margin-bottom:15px;">Требуется: <span style="color:#fff">${r.ingredientsText}</span></div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            setView(html);
-        }
-
-        function renderPatrols() {
-            setView(`
-                <div class="card" style="border-left-color: var(--accent)">
-                    <div class="card-title">СИСТЕМА ПАТРУЛЕЙ</div>
-                    <div class="card-desc">Начните патрулирование комплекса для получения премиальных выплат. Вам будут назначены точки маршрута.</div>
-                    <button class="btn" style="font-size:18px; padding:15px 30px; margin-top:10px" onclick="alert('Патруль начат')">НАЧАТЬ ПАТРУЛЬ</button>
-                </div>
-            `);
-        }
-
-        function renderAdminHub() {
-            setView(`
-                <div class="card" style="border-left-color: var(--accent-red)">
-                    <div class="card-title" style="color: var(--accent-red)">ПАНЕЛЬ АДМИНИСТРАТОРА</div>
-                    <div class="card-desc">Экстренное управление комплексом и событиями.</div>
-                    
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:20px;">
-                        <button class="btn btn-red" onclick="alert('Breach triggered')">ОБЪЯВИТЬ НАРУШЕНИЕ</button>
-                        <button class="btn btn-red" onclick="alert('Lights off')">ВЫКЛЮЧИТЬ ПИТАНИЕ</button>
-                        <button class="btn btn-red" onclick="alert('Lights on')">ВКЛЮЧИТЬ ПИТАНИЕ</button>
-                        <button class="btn btn-red" onclick="alert('Airdrop')">ВЫЗВАТЬ АИРДРОП</button>
-                    </div>
-                </div>
-            `);
-        }
-
-        function renderRaids() {
-            setView(`
-                <div class="card" style="border-left-color: var(--accent-orange)">
-                    <div class="card-title" style="color:var(--accent-orange)">ЗАПРОС НА РЕЙД</div>
-                    <div class="card-desc">Отправка официального запроса на проведение рейда. Ожидается подтверждение другой стороны.</div>
-                    
-                    <div style="display:flex; flex-direction:column; gap: 15px; margin-top:20px;">
-                        <div>
-                            <label style="color:var(--accent-orange); font-weight:bold; font-size:14px; margin-bottom:5px; display:block;">ЦЕЛЬ РЕЙДА (ФРАКЦИЯ):</label>
-                            <input type="text" id="raid-target" placeholder="Например: Фонд, ГОК, Повстанцы..." style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.5); border:1px solid var(--accent-orange); color:#fff; padding:10px; font-family:'Chakra Petch'; font-size:16px; outline:none;">
-                        </div>
-                        <div>
-                            <label style="color:var(--accent-orange); font-weight:bold; font-size:14px; margin-bottom:5px; display:block;">ПРИЧИНА РЕЙДА:</label>
-                            <textarea id="raid-reason" placeholder="Укажите RP причину..." style="width:100%; box-sizing:border-box; height:80px; background:rgba(0,0,0,0.5); border:1px solid var(--accent-orange); color:#fff; padding:10px; font-family:'Chakra Petch'; font-size:16px; outline:none; resize:none;"></textarea>
-                        </div>
-                        <button class="btn" style="width:100%; font-size:18px; margin-top:10px; border-color:var(--accent-orange); color:var(--accent-orange)" onclick="alert('Запрос на рейд фракции ' + document.getElementById('raid-target').value + ' отправлен!')">ОТПРАВИТЬ ЗАПРОС</button>
-                    </div>
-                </div>
-            `);
-        }
-
-        function renderMessage(msg) {
-            setView(`
-                <div class="card" style="text-align:center; padding:40px;">
-                    <div class="card-desc" style="font-size:17px; white-space:pre-line;">${msg}</div>
-                </div>
-            `);
-        }
-
         function renderReports() {
             setView(`
                 <div class="card" style="border-left-color: var(--accent)">
-                    <div class="card-title">НОВЫЙ ОТЧЕТ</div>
+                    <div class="card-title">📝 НОВЫЙ ОТЧЕТ</div>
                     <div class="card-desc">Отправьте отчет об инциденте, связанном с объектом SCP, в базу данных Зоны.</div>
-                    <div style="display:flex; flex-direction:column; gap:15px;">
+                    <div style="display:flex; flex-direction:column; gap:12px;">
                         <div>
-                            <label style="color:var(--accent); font-weight:bold; font-size:14px; margin-bottom:5px; display:block;">НОМЕР SCP:</label>
-                            <input type="text" id="report-scp" placeholder="Например: SCP-173" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.5); border:1px solid var(--accent); color:#fff; padding:10px; font-family:'Chakra Petch'; font-size:16px; outline:none;">
+                            <label style="color:var(--accent); font-weight:bold; font-size:13px; margin-bottom:5px; display:block; letter-spacing:1px;">НОМЕР SCP:</label>
+                            <input type="text" id="report-scp" placeholder="Например: SCP-173" style="width:100%; background:rgba(0,0,0,0.5); border:1px solid var(--accent); color:#fff; padding:10px; font-family:'Chakra Petch'; font-size:15px; outline:none;">
                         </div>
                         <div>
-                            <label style="color:var(--accent); font-weight:bold; font-size:14px; margin-bottom:5px; display:block;">ТЕКСТ ОТЧЕТА:</label>
-                            <textarea id="report-text" placeholder="Опишите инцидент подробно (мин. 10 символов)..." style="width:100%; box-sizing:border-box; height:120px; background:rgba(0,0,0,0.5); border:1px solid var(--accent); color:#fff; padding:10px; font-family:'Chakra Petch'; font-size:16px; outline:none; resize:none;"></textarea>
+                            <label style="color:var(--accent); font-weight:bold; font-size:13px; margin-bottom:5px; display:block; letter-spacing:1px;">ТЕКСТ ОТЧЕТА:</label>
+                            <textarea id="report-text" placeholder="Опишите инцидент подробно..." style="width:100%; height:120px; background:rgba(0,0,0,0.5); border:1px solid var(--accent); color:#fff; padding:10px; font-family:'Chakra Petch'; font-size:15px; outline:none; resize:none;"></textarea>
                         </div>
-                        <button class="btn" style="width:100%; font-size:18px; margin-top:5px;" onclick="gmod.submitReport(document.getElementById('report-scp').value, document.getElementById('report-text').value)">ОТПРАВИТЬ ОТЧЕТ</button>
+                        <button class="btn" style="width:100%; font-size:16px; padding:12px;" onclick="gmod.submitReport(document.getElementById('report-scp').value, document.getElementById('report-text').value)">ОТПРАВИТЬ ОТЧЕТ</button>
                     </div>
                 </div>
             `);
@@ -443,9 +642,9 @@
         function renderMTF() {
             setView(`
                 <div class="card" style="border-left-color: var(--accent)">
-                    <div class="card-title">СПОСОБНОСТИ ОТРЯДА МОГ</div>
+                    <div class="card-title">🎯 СПОСОБНОСТИ ОТРЯДА МОГ</div>
                     <div class="card-desc">Используйте специальные способности вашего подразделения.</div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:10px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px;">
                         <button class="btn" onclick="gmod.mtfEpsilon()">ЭПСИЛОН-11: СКАНИРОВАНИЕ</button>
                         <button class="btn" onclick="gmod.mtfNu7()">НЮ-7: ЛЕЧЕНИЕ</button>
                         <button class="btn" onclick="gmod.mtfLambda()">ЛЯМБДА-5: ЯКОРЬ</button>
@@ -460,96 +659,132 @@
 
             let pointRows = '';
             if (points.length) {
-                points.forEach((p, i) => {
+                points.forEach(p => {
                     pointRows += `
                         <div class="list-row" style="border-left-color: var(--accent)">
                             <div class="row-info">
                                 <div class="row-title" style="color: var(--accent)">${p.name}</div>
-                                <div class="row-sub">Код доступа: <span style="color:#fff; font-weight:bold; letter-spacing:2px; font-size:16px;">${p.code}</span></div>
+                                <div class="row-sub">Код доступа: <span style="color:#fff; font-weight:bold; letter-spacing:2px; font-size:15px;">${p.code}</span></div>
                             </div>
-                            <div style="display:flex; gap:8px; align-items:center;">
-                                <div style="color:var(--text-dim); font-size:12px;">КООРДИНАТЫ ПОДТВЕРЖДЕНЫ</div>
-                            </div>
+                            <div style="color:var(--text-dim); font-size:11px;">ПОДТВЕРЖДЕНО</div>
                         </div>
                     `;
                 });
             } else {
-                pointRows = '<div class="card-desc" style="text-align:center; padding:20px; opacity:0.5;">Нет зарегистрированных точек. Используйте !addgoc [код] [название] для добавления.</div>';
+                pointRows = '<div class="card-desc" style="text-align:center; padding:15px; opacity:0.5;">Нет зарегистрированных точек. Используйте !addgoc [код] [название]</div>';
             }
 
             setView(`
                 <div class="card" style="border-left-color: var(--accent)">
-                    <div class="card-title" style="color:var(--accent); font-size:22px;">ТАКТИЧЕСКИЙ ТЕРМИНАЛ ГОК</div>
-                    <div class="card-desc">Система квантовой телепортации Глобальной Оккультной Коалиции. Введите код точки назначения и инициализируйте переброску.</div>
-                    
-                    <div style="background:rgba(0,0,0,0.4); border:1px solid var(--border); padding:20px; margin-top:15px;">
-                        <div style="color:var(--accent); font-weight:600; font-size:14px; margin-bottom:10px; letter-spacing:1px;">КОД ТОЧКИ НАЗНАЧЕНИЯ</div>
-                        <div style="display:flex; gap:10px;">
-                            <input type="text" id="goc-code" placeholder="Введите код..." style="flex-grow:1; background:rgba(0,210,255,0.05); border:1px solid var(--accent); color:#fff; padding:12px 15px; font-family:'Chakra Petch'; font-size:18px; letter-spacing:3px; outline:none; text-transform:uppercase;">
-                        </div>
-                        <button class="btn" style="width:100%; margin-top:15px; font-size:16px; padding:12px; border-color:var(--accent); color:var(--accent);" onclick="gmod.gocTeleport(document.getElementById('goc-code').value)">ИНИЦИАЛИЗИРОВАТЬ ТЕЛЕПОРТАЦИЮ</button>
+                    <div class="card-title" style="color:var(--accent); font-size:20px;">📡 ТАКТИЧЕСКИЙ ТЕРМИНАЛ ГОК</div>
+                    <div class="card-desc">Система квантовой телепортации Глобальной Оккультной Коалиции. Введите код точки назначения.</div>
+                    <div style="background:rgba(0,0,0,0.4); border:1px solid var(--border); padding:18px; margin-top:12px;">
+                        <div style="color:var(--accent); font-weight:600; font-size:13px; margin-bottom:8px; letter-spacing:1px;">КОД ТОЧКИ НАЗНАЧЕНИЯ</div>
+                        <input type="text" id="goc-code" placeholder="Введите код..." style="width:100%; background:rgba(0,210,255,0.05); border:1px solid var(--accent); color:#fff; padding:12px; font-family:'Chakra Petch'; font-size:18px; letter-spacing:3px; outline:none; text-transform:uppercase; margin-bottom:12px;">
+                        <button class="btn" style="width:100%; font-size:15px; padding:12px;" onclick="gmod.gocTeleport(document.getElementById('goc-code').value)">ИНИЦИАЛИЗИРОВАТЬ ТЕЛЕПОРТАЦИЮ</button>
                     </div>
                 </div>
-
-                <div class="card" style="border-left-color: var(--accent-green); margin-top:15px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <div class="card" style="border-left-color: var(--accent-green);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                         <div class="card-title" style="margin-bottom:0; color:var(--accent-green);">ДОСТУПНЫЕ ТОЧКИ</div>
-                        <div style="color:var(--text-dim); font-size:13px;">${points.length} точек в базе</div>
+                        <div style="color:var(--text-dim); font-size:12px;">${points.length} в базе</div>
                     </div>
                     ${pointRows}
                 </div>
-
-                <button class="btn" style="width:100%; margin-top:10px; font-size:14px; padding:12px; border-color:var(--accent-green); color:var(--accent-green);" onclick="gmod.spawnGOCPad()">РАЗВЕРНУТЬ ТЕЛЕПОРТ-ПЛАТФОРМУ В ТЕКУЩЕЙ ПОЗИЦИИ</button>
+                <button class="btn btn-green" style="width:100%; font-size:14px; padding:12px;" onclick="gmod.spawnGOCPad()">РАЗВЕРНУТЬ ТЕЛЕПОРТ-ПЛАТФОРМУ</button>
             `);
         }
 
-        if(typeof gmod === 'undefined') {
+        function renderMessage(title, msg) {
+            setView(`
+                <div class="card" style="text-align:center; padding:40px;">
+                    <div class="card-title">${title || ''}</div>
+                    <div class="card-desc" style="font-size:15px; white-space:pre-line;">${msg}</div>
+                </div>
+            `);
+        }
+
+        // ===== GMOD MOCK (for browser preview) =====
+        if (typeof gmod === 'undefined') {
             const _gmodMock = {
                 requestTab: function(tabName) {
                     if (tabName === "Profile") {
                         setLoading(tabName, "ДОСЬЕ СОТРУДНИКА");
                         setTimeout(() => renderProfile(JSON.stringify({
-                            name: "Агент Смит", job: "Командир МОГ", money: 5400
-                        })), 300);
+                            name: "Агент Смит", job: "ГОК | Командир", money: 5400,
+                            playTime: "48ч 32м", kills: 142, deaths: 37, rankProgress: 72
+                        })), 500);
                     } else if (tabName === "Quests") {
                         setLoading(tabName, "ЖУРНАЛ ЗАДАЧ");
                         setTimeout(() => renderQuests(JSON.stringify({
                             quests: [
-                                {name: "Уборка комплекса", desc: "Собрать мусор", goal: 5, progress: 2, reward: 500, completed: false}
+                                {name: "Первая кровь", desc: "Устраните сотрудника СБ", goal: 1, progress: 0, reward: 300, completed: false},
+                                {name: "Инженер-самоучка", desc: "Скрафтите любой предмет", goal: 1, progress: 1, reward: 150, completed: true}
                             ]
-                        })), 300);
+                        })), 500);
                     } else if (tabName === "Shop") {
                         setLoading(tabName, "МАГАЗИН");
-                        setTimeout(() => renderShop(JSON.stringify({items: [{name:"Аптечка", price: 250, id: "medkit"}]})), 300);
+                        setTimeout(() => renderShop(JSON.stringify({items: [
+                            {name:"Аптечка", price:250, id:"medkit", category:"МЕДИЦИНА"},
+                            {name:"Бронежилет", price:800, id:"armor", category:"ЭКИПИРОВКА"},
+                            {name:"Пистолет", price:500, id:"pistol", category:"ОРУЖИЕ"},
+                            {name:"Фонарик", price:100, id:"flashlight", category:"ЭКИПИРОВКА"}
+                        ]})), 500);
                     } else if (tabName === "Craft") {
                         setLoading(tabName, "КРАФТ");
-                        setTimeout(() => renderCraft(JSON.stringify({recipes: [{name:"Граната", ingredientsText:"Металл"}]})), 300);
-                    } else if (tabName === "Patrols") {
-                        setLoading(tabName, "ПАТРУЛЬ");
-                        setTimeout(() => renderPatrols(), 300);
-                    } else if (tabName === "Admin_Hub") {
-                        setLoading(tabName, "АДМИН ПАНЕЛЬ");
-                        setTimeout(() => renderAdminHub(), 300);
-                    } else if (tabName === "Raids") {
-                        setLoading(tabName, "РЕЙДЫ");
-                        setTimeout(() => renderRaids(JSON.stringify({canDeclare:true})), 300);
+                        setTimeout(() => renderCraft(JSON.stringify({recipes: [{name:"Граната", ingredientsText:"Металл x2, Порох x1"}, {name:"Аптечка", ingredientsText:"Ткань x3, Спирт x1"}]})), 500);
+                    } else if (tabName === "Map") {
+                        setLoading(tabName, "КАРТА КОМПЛЕКСА");
+                        setTimeout(() => renderMessage('КАРТА КОМПЛЕКСА', 'Схема секторов Зоны загружена в буфер тактического планшета.'), 500);
                     } else if (tabName === "GOC_Terminal") {
                         setLoading(tabName, "ТЕРМИНАЛ ГОК");
-                        setTimeout(() => renderGOCTerminal(JSON.stringify([{name: "База Альфа", id: "base_alpha"}])), 300);
+                        setTimeout(() => renderGOCTerminal(JSON.stringify([
+                            {name: "Тяжёлая Зона", code: "4512"},
+                            {name: "Лёгкая Зона", code: "1100"},
+                            {name: "Ворота Альфа", code: "7777"}
+                        ])), 500);
+                    } else if (tabName === "Admin_Hub") {
+                        setLoading(tabName, "АДМИН ПАНЕЛЬ");
+                        setTimeout(() => renderAdminHub(), 500);
+                    } else if (tabName === "Raids") {
+                        setLoading(tabName, "РЕЙДЫ");
+                        setTimeout(() => renderRaids(), 500);
+                    } else if (tabName === "Patrols") {
+                        setLoading(tabName, "ПАТРУЛЬ");
+                        setTimeout(() => renderPatrols(), 500);
+                    } else if (tabName === "Reports") {
+                        setLoading(tabName, "ОТЧЁТЫ");
+                        setTimeout(() => renderReports(), 500);
+                    } else if (tabName === "MTF_Ops") {
+                        setLoading(tabName, "ОПЕРАЦИИ МОГ");
+                        setTimeout(() => renderMTF(), 500);
                     }
                 },
-                buyItem: function(id) { alert("Куплено: " + id); },
-                gocTeleport: function(code) { alert("Телепортация на: " + code); },
-                spawnGOCPad: function() { alert("Платформа установлена"); },
-                closeTablet: function() { alert("Закрыто"); }
+                buyItem: function(id) { showToast("Предмет приобретён: " + id, "success"); },
+                gocTeleport: function(code) { showToast("Телепортация на точку: " + code, "success"); },
+                spawnGOCPad: function() { showToast("Телепорт-платформа развёрнута!", "success"); },
+                closeTablet: function() { showToast("Планшет закрыт", "info"); },
+                startPatrol: function() { showToast("Патруль начат!", "success"); },
+                declareRaid: function(t,r) { showToast("Запрос на рейд: " + t, "warning"); },
+                submitReport: function(s,t) { showToast("Отчёт по " + s + " отправлен", "success"); },
+                adminAction: function(a) { showToast("Действие: " + a, "warning"); },
+                playSound: function() {},
+                onReady: function() {
+                    setupSidebar(JSON.stringify([
+                        {name:"ПРОФИЛЬ", tab:"Profile"}, {name:"ЗАДАЧИ", tab:"Quests"},
+                        {name:"МАГАЗИН", tab:"Shop"}, {name:"КРАФТ", tab:"Craft"},
+                        {name:"КАРТА", tab:"Map"}, {name:"РЕЙДЫ", tab:"Raids"},
+                        {name:"ТЕРМИНАЛ ГОК", tab:"GOC_Terminal"}, {name:"АДМИН ПАНЕЛЬ", tab:"Admin_Hub"}
+                    ]));
+                    _gmodMock.requestTab("Profile");
+                }
             };
             window.gmod = _gmodMock;
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            if (window.gmod && gmod.onReady) gmod.onReady();
+            runBoot();
         });
     </script>
 </body>
 </html>
-
