@@ -231,6 +231,17 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
     
+        
+        /* Map Styles */
+        .map-container { display: flex; justify-content: center; width: 100%; margin-top: 15px; position: relative; }
+        .map-svg { width: 100%; max-height: 300px; filter: drop-shadow(0 0 15px rgba(0,210,255,0.1)); }
+        .sector-poly { fill: rgba(0, 210, 255, 0.05); stroke: var(--accent); stroke-width: 2; transition: all 0.3s ease; cursor: pointer; }
+        .sector-poly:hover { fill: rgba(0, 210, 255, 0.3); filter: drop-shadow(0 0 10px var(--accent)); }
+        .sector-poly.danger { stroke: var(--accent-red); fill: rgba(255, 42, 42, 0.05); }
+        .sector-poly.danger:hover { fill: rgba(255, 42, 42, 0.3); filter: drop-shadow(0 0 10px var(--accent-red)); }
+        .sector-text { fill: #fff; font-family: 'Chakra Petch'; font-size: 16px; font-weight: 700; pointer-events: none; letter-spacing: 2px; }
+        .map-info { margin-top: 15px; padding: 18px; background: rgba(0,0,0,0.6); border: 1px solid var(--border); border-left: 4px solid var(--accent); min-height: 120px; transition: all 0.3s; }
+
         /* Darknet theme */
         .darknet-theme { --bg-main:#030303!important; --bg-sidebar:#050505!important; --bg-card:rgba(0,255,0,0.05)!important; --accent:#0f0!important; --accent-hover:#fff!important; --accent-green:#0f0!important; --text-main:#0f0!important; --text-dim:#00aa00!important; --border:#0f0!important; font-family:'Courier New',monospace!important; }
         .darknet-theme .logo-title { animation: glitch 2s infinite; }
@@ -695,6 +706,71 @@
             `);
         }
 
+        
+        function showSectorInfo(title, threat, desc, isDanger) {
+            const color = isDanger ? 'var(--accent-red)' : 'var(--accent-green)';
+            const border = isDanger ? 'var(--accent-red)' : 'var(--accent)';
+            const infoDiv = document.getElementById('sector-info');
+            infoDiv.style.borderLeftColor = border;
+            infoDiv.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="color:${border}; font-weight:bold; font-size:20px; letter-spacing:1px;">${title}</div>
+                    <div style="color:${color}; font-size:13px; font-weight:bold; border:1px solid ${color}; padding:2px 8px;">${threat}</div>
+                </div>
+                <div style="color:#e0f0ff; font-size:14px; margin-top:12px; line-height:1.5;">${desc}</div>
+                <button class="btn ${isDanger ? 'btn-red' : ''}" style="margin-top:15px; font-size:13px; padding:8px 16px;" onclick="gmod.playSound('buttons/blip1.wav'); showToast('Запуск сканирования биосигналов...', 'info')">СКАНИРОВАТЬ СЕКТОР</button>
+            `;
+            if (window.gmod && gmod.playSound) gmod.playSound('buttons/lightswitch2.wav');
+        }
+
+        function renderMap() {
+            setView(`
+                <div class="card" style="border-left-color: var(--accent); margin-bottom: 10px;">
+                    <div class="card-title">ТАКТИЧЕСКАЯ КАРТА: УЧАСТОК-04</div>
+                    <div class="card-desc">Топографическая схема rp_site_4_re_v1. Выберите сектор для получения детальной информации со спутника.</div>
+                    
+                    <div class="map-container">
+                        <svg viewBox="0 0 800 450" class="map-svg">
+                            <!-- Surface -->
+                            <polygon class="sector-poly" points="100,50 700,50 650,130 150,130" onclick="showSectorInfo('ПОВЕРХНОСТЬ', 'УГРОЗА: НИЗКАЯ', 'Внешний периметр Участка-04. Лесной массив, выход к вертолетной площадке и контрольно-пропускному пункту. Патрулируется МОГ.', false)" />
+                            <text x="400" y="95" text-anchor="middle" class="sector-text">ПОВЕРХНОСТЬ</text>
+                            
+                            <!-- Entrance Zone -->
+                            <polygon class="sector-poly" points="150,150 650,150 600,230 200,230" onclick="showSectorInfo('ЗОНА ПЕРСОНАЛА (EZ)', 'УГРОЗА: УМЕРЕННАЯ', 'Административный сектор Участка-04. Офисы, кафетерий, казармы СБ и узлы связи. Основной персонал Фонда.', false)" />
+                            <text x="400" y="195" text-anchor="middle" class="sector-text">ЗОНА ПЕРСОНАЛА (EZ)</text>
+                            
+                            <!-- Heavy Containment -->
+                            <polygon class="sector-poly danger" points="200,250 600,250 550,330 250,330" onclick="showSectorInfo('ТЯЖЕЛАЯ ЗОНА (HCZ)', 'УГРОЗА: ВЫСОКАЯ', 'Содержание объектов класса Кетер и опасных Евклидов. Нижний ярус комплекса. Внимание: возможна радиоактивная угроза.', true)" />
+                            <text x="400" y="295" text-anchor="middle" class="sector-text">ТЯЖЕЛАЯ ЗОНА (HCZ)</text>
+                            
+                            <!-- Light Containment -->
+                            <polygon class="sector-poly" points="250,350 550,350 500,430 300,430" onclick="showSectorInfo('ЛЕГКАЯ ЗОНА (LCZ)', 'УГРОЗА: НЕИЗВЕСТНО', 'Содержание безопасных объектов. Блок камер D-Класса. Оружейная комната.', false)" />
+                            <text x="400" y="395" text-anchor="middle" class="sector-text">ЛЕГКАЯ ЗОНА (LCZ)</text>
+
+                            <!-- Data lines (connecting sectors) -->
+                            <line x1="400" y1="130" x2="400" y2="150" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4,4" />
+                            <line x1="400" y1="230" x2="400" y2="250" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4,4" />
+                            <line x1="400" y1="330" x2="400" y2="350" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4,4" />
+                            
+                            <!-- Decorative nodes -->
+                            <circle cx="400" cy="130" r="3" fill="var(--accent)" />
+                            <circle cx="400" cy="150" r="3" fill="var(--accent)" />
+                            <circle cx="400" cy="230" r="3" fill="var(--accent)" />
+                            <circle cx="400" cy="250" r="3" fill="var(--accent)" />
+                            <circle cx="400" cy="330" r="3" fill="var(--accent-red)" />
+                            <circle cx="400" cy="350" r="3" fill="var(--accent)" />
+                        </svg>
+                    </div>
+
+                    <div id="sector-info" class="map-info">
+                        <div style="color:var(--text-dim); font-size:16px; font-weight:bold; text-align:center; margin-top:35px; letter-spacing:1px;">
+                            ОЖИДАНИЕ ВЫБОРА СЕКТОРА...
+                        </div>
+                    </div>
+                </div>
+            `);
+        }
+
         function renderMessage(title, msg) {
             setView(`
                 <div class="card" style="text-align:center; padding:40px;">
@@ -735,7 +811,7 @@
                         setTimeout(() => renderCraft(JSON.stringify({recipes: [{name:"Граната", ingredientsText:"Металл x2, Порох x1"}, {name:"Аптечка", ingredientsText:"Ткань x3, Спирт x1"}]})), 500);
                     } else if (tabName === "Map") {
                         setLoading(tabName, "КАРТА КОМПЛЕКСА");
-                        setTimeout(() => renderMessage('КАРТА КОМПЛЕКСА', 'Схема секторов Зоны загружена в буфер тактического планшета.'), 500);
+                        setTimeout(() => renderMap(), 500);
                     } else if (tabName === "GOC_Terminal") {
                         setLoading(tabName, "ТЕРМИНАЛ ГОК");
                         setTimeout(() => renderGOCTerminal(JSON.stringify([
