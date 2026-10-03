@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Share+Tech+Mono&display=swap');
+        
+        * { box-sizing: border-box; }
+        body { 
+            margin:0; padding:0; background:transparent; overflow:hidden; 
+            font-family:'Chakra Petch', sans-serif; user-select:none; 
+        }
+        
+        .hud-container { width:100vw; height:100vh; position:relative; pointer-events:none; }
+        
+        /* ================= ULTRA BOOT VISOR ================= */
+        .boot-screen {
+            position:absolute; top:0; left:0; width:100%; height:100%; 
+            background: radial-gradient(circle at center, rgba(0, 20, 30, 0.92) 0%, rgba(2, 4, 8, 0.98) 100%);
+            display:flex; flex-direction:column; justify-content:center; align-items:center;
+            z-index:100; transition:opacity 0.6s ease;
+        }
+
+        .cyber-grid {
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 204, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 204, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        .scanline-bar {
+            position: absolute; top:0; left:0; width:100%; height:4px;
+            background: linear-gradient(90deg, transparent, #00ffcc, #ffffff, #00ffcc, transparent);
+            box-shadow: 0 0 15px #00ffcc;
+            animation: scanMove 2.5s ease-in-out infinite;
+        }
+
+        @keyframes scanMove {
+            0% { top: 0%; opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .holo-center {
+            position: relative; width: 400px; height: 480px;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .radar-circle {
+            position: absolute; border: 1px dashed rgba(0, 255, 204, 0.3); border-radius: 50%;
+            animation: rotateRadar 12s linear infinite;
+        }
+        .rc1 { width: 440px; height: 440px; }
+        .rc2 { width: 320px; height: 320px; border: 1px solid rgba(0, 255, 204, 0.15); }
+        .rc3 { width: 200px; height: 200px; border-style: dotted; }
+
+        @keyframes rotateRadar { 100% { transform: rotate(360deg); } }
+
+        .wireframe-svg {
+            width: 240px; height: 420px; filter: drop-shadow(0 0 8px rgba(0, 255, 204, 0.6));
+            position: relative; z-index: 2;
+        }
+
+        .target-node {
+            animation: pulseNode 1s infinite alternate;
+        }
+
+        @keyframes pulseNode {
+            0% { r: 4; fill: #00ffcc; filter: drop-shadow(0 0 2px #00ffcc); }
+            100% { r: 7; fill: #ffffff; filter: drop-shadow(0 0 10px #00ffcc); }
+        }
+
+        .diag-panel {
+            position: absolute; width: 320px; font-family: 'Share Tech Mono', monospace; font-size: 13px;
+            color: rgba(0, 255, 204, 0.85); line-height: 1.6; text-shadow: 0 0 5px rgba(0,255,204,0.5);
+            background: rgba(0, 20, 30, 0.6); border: 1px solid rgba(0, 255, 204, 0.25);
+            padding: 15px; border-radius: 4px; backdrop-filter: blur(4px);
+        }
+        .diag-left { left: 80px; top: 50%; transform: translateY(-50%); border-left: 3px solid #00ffcc; }
+        .diag-right { right: 80px; top: 50%; transform: translateY(-50%); border-right: 3px solid #00ffcc; text-align: right; }
+
+        .boot-banner {
+            position: absolute; bottom: 80px; text-align: center;
+        }
+        .suit-name-title {
+            font-size: 26px; font-weight: 700; color: #fff; letter-spacing: 4px;
+            text-shadow: 0 0 15px #00ffcc; text-transform: uppercase; margin-bottom: 8px;
+        }
+        .sys-online-text {
+            font-size: 20px; font-weight: 700; color: #00ffcc; letter-spacing: 6px;
+            text-shadow: 0 0 20px #00ffcc; opacity: 0; transition: opacity 0.3s;
+        }
+
+        /* ================= IN-GAME VISOR OVERLAY ================= */
+        .hud-overlay { position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; transition:opacity 0.6s; pointer-events:none; }
+        
+        .hex-bg { 
+            position:absolute; top:0; left:0; width:100%; height:100%; 
+            background-image: url('data:image/svg+xml;utf8,<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg"><path d="M20 0 L40 10 L40 30 L20 40 L0 30 L0 10 Z" fill="none" stroke="rgba(0, 255, 204, 0.04)" stroke-width="1"/></svg>');
+            background-size: 40px 40px; pointer-events:none;
+        }
+        
+        .visor-top { 
+            position:absolute; top:0; left:15%; width:70%; height:55px; 
+            background:linear-gradient(180deg, rgba(0,255,204,0.15) 0%, transparent 100%); 
+            border-top:2px solid #00ffcc; clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%); 
+        }
+        .visor-bottom { 
+            position:absolute; bottom:0; left:15%; width:70%; height:55px; 
+            background:linear-gradient(0deg, rgba(0,255,204,0.15) 0%, transparent 100%); 
+            border-bottom:2px solid #00ffcc; clip-path: polygon(5% 0, 95% 0, 100% 100%, 0 100%); 
+        }
+        
+        .info-panel { 
+            position:absolute; top:40px; padding:15px 20px; color:#00ffcc; text-shadow:0 0 8px #00ffcc; 
+            background:rgba(0,20,30,0.7); clip-path: polygon(0 0, 100% 0, 90% 100%, 0 100%); 
+            width:280px; border-left:3px solid #00ffcc; 
+        }
+        .right-panel { right:30px; left:auto; border-left:none; border-right:3px solid #00ffcc; text-align:right; }
+        
+        .info-title { font-size:12px; color:rgba(255,255,255,0.7); letter-spacing:1px; margin-bottom:4px; font-weight:600; }
+        .info-value { font-size:22px; font-weight:bold; letter-spacing:1.5px; }
+        .status-dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:#00ffcc; box-shadow:0 0 8px #00ffcc; margin-right:6px; }
+        .status-dot.off { background:#ff3355; box-shadow:0 0 8px #ff3355; }
+    </style>
+</head>
+<body>
+    <div class="hud-container">
+        <!-- BOOT VISOR -->
+        <div class="boot-screen" id="boot-screen">
+            <div class="cyber-grid"></div>
+            <div class="scanline-bar"></div>
+
+            <div class="diag-panel diag-left" id="diag-left">
+                <div style="color:#fff; font-weight:bold; margin-bottom:8px;">[NEURAL INTERFACE]</div>
+                <div>> LINK: ESTABLISHED</div>
+                <div>> SYNC RATE: 99.4%</div>
+                <div>> MOTORS: 16/16 CALIBRATED</div>
+                <div>> SERVO LATENCY: 0.12ms</div>
+                <div>> DAMPERS: ACTIVE</div>
+            </div>
+
+            <div class="holo-center">
+                <div class="radar-circle rc1"></div>
+                <div class="radar-circle rc2"></div>
+                <div class="radar-circle rc3"></div>
+
+                <svg class="wireframe-svg" viewBox="0 0 100 200">
+                    <!-- Head -->
+                    <circle cx="50" cy="20" r="10" fill="none" stroke="#00ffcc" stroke-width="1.2" stroke-dasharray="2 1"/>
+                    <circle cx="50" cy="20" r="3" class="target-node"/>
+                    <!-- Spine -->
+                    <line x1="50" y1="30" x2="50" y2="90" stroke="#00ffcc" stroke-width="2"/>
+                    <!-- Shoulders & Torso -->
+                    <path d="M 25 45 L 75 45 L 65 90 L 35 90 Z" fill="rgba(0,255,204,0.06)" stroke="#00ffcc" stroke-width="1.2"/>
+                    <!-- Arms -->
+                    <polyline points="25,45 15,75 10,105" fill="none" stroke="#00ffcc" stroke-width="1.2"/>
+                    <polyline points="75,45 85,75 90,105" fill="none" stroke="#00ffcc" stroke-width="1.2"/>
+                    <circle cx="15" cy="75" r="3" class="target-node"/>
+                    <circle cx="85" cy="75" r="3" class="target-node"/>
+                    <!-- Pelvis & Legs -->
+                    <line x1="35" y1="90" x2="65" y2="90" stroke="#00ffcc" stroke-width="2"/>
+                    <polyline points="40,90 35,140 33,185" fill="none" stroke="#00ffcc" stroke-width="1.5"/>
+                    <polyline points="60,90 65,140 67,185" fill="none" stroke="#00ffcc" stroke-width="1.5"/>
+                    <circle cx="35" cy="140" r="3" class="target-node"/>
+                    <circle cx="65" cy="140" r="3" class="target-node"/>
+                    <!-- Chest Core -->
+                    <circle cx="50" cy="55" r="5" fill="#00ffcc" class="target-node"/>
+                </svg>
+            </div>
+
+            <div class="diag-panel diag-right" id="diag-right">
+                <div style="color:#fff; font-weight:bold; margin-bottom:8px;">[POWER CORE & CHASSIS]</div>
+                <div>REACTOR: NOMINAL (99.8%) <</div>
+                <div>EXO CARCASS: LOCKED <</div>
+                <div>KINETIC BARRIER: READY <</div>
+                <div>THERMAL REGULATION: 36.6°C <</div>
+                <div>HUD OVERLAY: SYNCING... <</div>
+            </div>
+
+            <div class="boot-banner">
+                <div class="suit-name-title" id="boot-suit-name">INITIALIZING EXOSKELETON...</div>
+                <div class="sys-online-text" id="boot-sys-online">SYSTEM ONLINE // CHASSIS ENGAGED</div>
+            </div>
+        </div>
+
+        <!-- ACTIVE VISOR HUD -->
+        <div class="hud-overlay" id="hud-overlay">
+            <div class="hex-bg"></div>
+            <div class="visor-top"></div>
+            <div class="visor-bottom"></div>
+            
+            <div class="info-panel" style="left:30px;">
+                <div class="info-title">ШАССИ ЭКЗОСКЕЛЕТА</div>
+                <div class="info-value" id="val-model" style="font-size:18px;">АКТИВЕН</div>
+                <div style="margin-top:10px; font-size:13px;">
+                    <span class="status-dot" id="dot-abilities"></span> СПОСОБНОСТИ: АКТИВНЫ
+                </div>
+            </div>
+            
+            <div class="info-panel right-panel">
+                <div class="info-title">СИСТЕМА БРОНИРОВАНИЯ</div>
+                <div class="info-value" id="val-armor">0 AP</div>
+                <div style="margin-top:10px; font-size:13px; color:#fff;">
+                    ЦЕЛОСТНОСТЬ: <span id="val-hp-pct" style="color:#00ffcc">100%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function startBootSequence(suitName) {
+            const boot = document.getElementById('boot-screen');
+            const hud = document.getElementById('hud-overlay');
+            const title = document.getElementById('boot-suit-name');
+            const online = document.getElementById('boot-sys-online');
+            const modelVal = document.getElementById('val-model');
+            
+            if (title) title.innerText = suitName.toUpperCase();
+            if (modelVal) modelVal.innerText = suitName.toUpperCase();
+            
+            boot.style.display = "flex";
+            boot.style.opacity = 1;
+            hud.style.opacity = 0;
+            online.style.opacity = 0;
+            
+            if (window.gmod && gmod.playSound) {
+                gmod.playSound("weapons/pistol/pistol_empty.wav");
+            }
+            
+            setTimeout(() => {
+                if (window.gmod && gmod.playSound) gmod.playSound("weapons/pistol/pistol_empty.wav");
+            }, 600);
+
+            setTimeout(() => {
+                if (window.gmod && gmod.playSound) gmod.playSound("weapons/pistol/pistol_empty.wav");
+            }, 1200);
+
+            setTimeout(() => {
+                online.style.opacity = 1;
+                if (window.gmod && gmod.playSound) gmod.playSound("items/suitchargeok1.wav");
+            }, 1800);
+            
+            setTimeout(() => {
+                boot.style.opacity = 0;
+                hud.style.opacity = 1;
+                setTimeout(() => { boot.style.display = "none"; }, 600);
+            }, 2700);
+        }
+
+        function updateHUD(armor, abilitiesOn, healthPct) {
+            const arEl = document.getElementById('val-armor');
+            if (arEl) arEl.innerText = armor + " AP";
+            
+            const dot = document.getElementById('dot-abilities');
+            if (dot) {
+                if (abilitiesOn) dot.classList.remove('off');
+                else dot.classList.add('off');
+            }
+            
+            const hpEl = document.getElementById('val-hp-pct');
+            if (hpEl) {
+                let pct = Math.round(healthPct * 100);
+                hpEl.innerText = pct + "%";
+                if (pct < 30) hpEl.style.color = "#ff3355";
+                else if (pct < 60) hpEl.style.color = "#ffaa00";
+                else hpEl.style.color = "#00ffcc";
+            }
+        }
+    </script>
+</body>
+</html>
